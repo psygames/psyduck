@@ -2,17 +2,17 @@ import selenium.webdriver
 import time
 import platform
 import os
-import config
+import tools
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 driver: selenium.webdriver.Chrome = None
 
 is_driver_busy = False
 
-zip_save_path = config.zip_save_path
-download_path = config.chrome_download_path
-driver_path = config.chrome_driver_path
-option_path = config.chrome_option_path
+zip_save_path = tools.abspath('zip')
+download_path = tools.abspath('download')
+driver_path = tools.abspath('chrome_driver/chromedriver')
+option_path = tools.abspath('chrome_options/default')
 
 
 def create_dir():
