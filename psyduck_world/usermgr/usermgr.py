@@ -2,6 +2,8 @@ from core import db
 import core.helper
 from datetime import datetime
 
+login_procedure = []
+
 
 class LoginProcedure:
     act = {}
@@ -16,10 +18,10 @@ class LoginProcedure:
     def force_stop(self):
         self._over()
 
-    def _over(self):
+    def _over(self, rm_option=True):
         self.over = True
         if self.helper is not None:
-            self.helper.dispose()
+            self.helper.dispose(rm_option)
 
     def set_state(self, state, message='', file=''):
         db.act_set(self.act['id'], state, message, file)
@@ -28,7 +30,8 @@ class LoginProcedure:
     def update(self):
         if self.check_timeout():
             return
-        self.current_func()
+        if self.current_func is not None:
+            self.current_func()
 
     def check_timeout(self):
         if self.act['state'] == 'fail' and self.act['message'] == 'timeout':
@@ -74,22 +77,34 @@ class LoginProcedure:
             self.current_func = self.verify_next
             print('验证完成')
 
+    def get_verify_code(self, phone):
+        if not self.helper.is_login_wait_for_verify():
+            return
+        self.helper.get_verify_code(phone)
+
+    def set_verify_code(self, code):
+        if not self.helper.is_login_wait_for_verify():
+            return
+        self.helper.set_verify_code(code)
+
     def verify_next(self):
         if self.helper.is_login_success():
             self.current_func = self.done
-            print('登录完成')
 
     def done(self):
         self.set_state('done')
         username = self.helper.get_username()
-        self.helper.save_tmp_option(username)
-        self._over()
+        if not self.helper.has_option(username):
+            self._over(False)
+            self.helper.save_tmp_option(username)
+        else:
+            self._over()
         db.user_set(username, 'online')
+        print('登录完成: ' + username)
         self.current_func = None
 
 
 def loop_check():
-    login_check()
     login_process()
 
 
@@ -99,10 +114,29 @@ def stop_all():
     login_procedure.clear()
 
 
-login_procedure = []
+def login_verify_get():
+    act = db.act_get('user', 'login_verify_get', 'request')
+    if act is None:
+        return
+    for p in login_procedure:
+        if p.act['uid'] == act['uid']:
+            p.get_verify_code(act['message'])
+            db.act_set(act['id'], 'done', act['message'])
+            break
 
 
-def login_check():
+def login_verify_set():
+    act = db.act_get('user', 'login_verify_set', 'request')
+    if act is None:
+        return
+    for p in login_procedure:
+        if p.act['uid'] == act['uid']:
+            p.set_verify_code(act['message'])
+            db.act_set(act['id'], 'done', act['message'])
+            break
+
+
+def login_request():
     act = db.act_get('user', 'login', 'request')
     if act is None:
         return
@@ -111,5 +145,8 @@ def login_check():
 
 
 def login_process():
+    login_request()
+    login_verify_get()
+    login_verify_set()
     for p in login_procedure:
         p.update()

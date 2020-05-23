@@ -19,12 +19,15 @@ def user_init():
     global user
     user = db['csdn_user']
 
+    # test
+    user_set('y85171642', 'online')
+
 
 def user_set(username, state):
-    if act.find({'username': username}) is None:
-        act.insert_one({'username': username, 'state': state})
+    if user.find_one({'username': username}) is None:
+        user.insert_one({'username': username, 'state': state})
     else:
-        act.update_one({'username': username}, {'$set': {'state': state}})
+        user.update_one({'username': username}, {'$set': {'state': state}})
 
 
 # act
@@ -34,14 +37,24 @@ def act_init():
 
     # test
     if act.find_one({'id': 0}) is None:
-        act_create(0, 0, 'user', 'login', 'request', '')
+        act_create(0, 0, 'user', 'login', 'request')
     else:
         act_set(0, 'request')
 
+    if act.find_one({'id': 1}) is None:
+        act_create(1, 0, 'user', 'login_verify_get', 'done', '18600105483')
+    else:
+        act_set(1, 'done', '18600105483')
 
-def act_create(_id, uid, _type, action, state, file):
-    act.insert_one({'id': 0, 'uid': uid, 'type': _type, 'action': action, 'state': state, 'file': file,
-                    'message': '', 'time': datetime.datetime.now()})
+    if act.find_one({'id': 2}) is None:
+        act_create(2, 0, 'user', 'login_verify_set', 'done', '000000')
+    else:
+        act_set(2, 'done', '000000')
+
+
+def act_create(_id, uid, _type, action, state, message='', file=''):
+    act.insert_one({'id': _id, 'uid': uid, 'type': _type, 'action': action, 'state': state,
+                    'message': message, 'file': file, 'time': datetime.datetime.now()})
 
 
 def act_get(_type, action, state):

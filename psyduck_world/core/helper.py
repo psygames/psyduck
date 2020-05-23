@@ -82,6 +82,10 @@ class Helper:
         self.driver.set_page_load_timeout(10)
         self.driver.set_script_timeout(10)
 
+    def scroll_to(self, horizontal, vertical):
+        js = f"window.scrollTo({horizontal},{vertical})"
+        self.driver.execute_script(js)
+
     def is_busy(self):
         return self.is_driver_busy
 
@@ -89,10 +93,33 @@ class Helper:
         if self.driver is None:
             return ""
         self.get('https://passport.csdn.net/login')
+        self.scroll_to(520, 0)
         self.driver.switch_to.frame('iframe_id')
         src = self.find('//img[@class="qrcode lightBorder"]').get_attribute('src')
         self.driver.switch_to.default_content()
         return src
+
+    def get_verify_code(self, phone):
+        if self.driver is None:
+            return
+        _input = self.find('//input[@id="phone"]')
+        _input.clear()
+        _input.send_keys(phone)
+        btn = self.find('//button[@class="btn btn-confirm btn-control"]')
+        btn.click()
+
+    def set_verify_code(self, code):
+        if self.driver is None:
+            return
+        _input = self.find('//input[@id="code"]')
+        _input.clear()
+        _input.send_keys(code)
+        btn = self.find('//button[@data-type="accountSecur"]')
+        btn.click()
+        time.sleep(1)
+        a = self.find('//a[text()="以后再说"]')
+        if a is not None:
+            a.click()
 
     def is_login_wait_for_verify(self):
         if self.driver is None:
@@ -115,8 +142,15 @@ class Helper:
         username = self.find('//span[@class="id_name"]').text[3:]
         return username
 
+    def has_option(self, option_name):
+        _option_path = os.path.join(os.path.dirname(self.tmp_option_path), option_name)
+        if os.path.exists(_option_path):
+            return True
+        return False
+
     def save_tmp_option(self, option_name):
-        shutil.copytree(self.tmp_option_path, os.path.join(os.path.dirname(self.tmp_option_path), option_name))
+        _option_path = os.path.join(os.path.dirname(self.tmp_option_path), option_name)
+        shutil.move(self.tmp_option_path, _option_path)
 
     def get(self, url, timeout=10, retry=3):
         self.driver.get(url)
@@ -154,7 +188,7 @@ class Helper:
     def set_window_size(self, width, height):
         self.driver.set_window_size(width, height)
 
-    def dispose(self):
+    def dispose(self, rm_option=True):
         if self.driver is not None:
             self.driver.stop_client()
             self.driver.quit()
@@ -163,7 +197,7 @@ class Helper:
         if os.path.exists(self.tmp_driver_dir):
             time.sleep(0.1)
             shutil.rmtree(self.tmp_driver_dir)
-        if os.path.exists(self.tmp_option_path):
+        if rm_option and os.path.exists(self.tmp_option_path):
             time.sleep(0.1)
             shutil.rmtree(self.tmp_option_path)
 
