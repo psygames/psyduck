@@ -221,8 +221,9 @@ class Helper:
             if not self.__valid_download_url(url):
                 return self.__download_result(False, "无效的下载地址")
 
-            step = 'login'
-            self.auto_login()
+            step = 'check login'
+            if not self.check_login():
+                pass
 
             step = 'get url'
             self.get(url)
