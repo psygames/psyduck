@@ -20,14 +20,14 @@ def user_init():
     user = db['csdn_user']
 
     # test
-    user_set('y85171642', 'online')
+    # user_set('y85171642', 'online')
 
 
-def user_set(username, state):
-    if user.find_one({'username': username}) is None:
-        user.insert_one({'username': username, 'state': state})
+def user_set(uid, csdn, state):
+    if user.find_one({'uid': uid, 'csdn': csdn}) is None:
+        user.insert_one({'csdn': csdn, 'state': state})
     else:
-        user.update_one({'username': username}, {'$set': {'state': state}})
+        user.update_one({'csdn': csdn}, {'$set': {'state': state}})
 
 
 # act

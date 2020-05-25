@@ -13,6 +13,7 @@ class LoginProcedure:
 
     def __init__(self, act):
         self.act = act
+        self.helper = core.helper.Helper()
         self.current_func = self.process_start
 
     def force_stop(self):
@@ -43,14 +44,13 @@ class LoginProcedure:
 
     def process_start(self):
         print('初始化...')
-        self.helper = core.helper.Helper()
         self.helper.init(f'{self.act["uid"]}_tmp_option')
         self.current_func = self.goto_login
 
     def goto_login(self):
         print('获取二维码')
         qr = self.helper.get_scan_qr()
-        self.set_state('scan', file=qr)
+        self.set_state('scan', message=qr)
         print('等待扫码')
         self.current_func = self.wait_scan
 
@@ -95,8 +95,11 @@ class LoginProcedure:
             self.helper.save_tmp_option(username)
         else:
             self._over()
-        db.user_set(username, 'online')
+
         print('登录完成: ' + username)
+
+        # save to csdn user
+        db.user_set(self.act['uid'], username, 'online')
 
 
 def loop_check():
