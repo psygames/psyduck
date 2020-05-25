@@ -190,8 +190,9 @@ class Helper:
 
     def dispose(self, rm_option=True):
         if self.driver is not None:
-            self.driver.stop_client()
+            self.driver.close()
             self.driver.quit()
+            self.driver.stop_client()
             self.driver = None
         self.is_driver_busy = False
         if os.path.exists(self.tmp_driver_dir):

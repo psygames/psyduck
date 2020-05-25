@@ -99,7 +99,8 @@ class LoginProcedure:
         # save to csdn user
         db.user_set_state(self.act['uid'], csdn, 'on')
 
+        # test options
         self.helper = core.helper.Helper()
         self.helper.init(csdn)
-        print("check login : " + self.helper.check_login())
+        print(f"重复验证登陆Option有效性 : {self.helper.check_login()}")
         self.helper.dispose()

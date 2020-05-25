@@ -47,7 +47,7 @@ def act_init():
     if act.find_one({'id': 0}) is None:
         act_create(0, 'admin', 'user', 'login', 'request')
     else:
-        act_set(0, 'done')
+        act_set(0, 'request')
 
     if act.find_one({'id': 1}) is None:
         act_create(1, 'admin', 'user', 'login_verify_get', 'done', '18600105483')

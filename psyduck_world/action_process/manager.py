@@ -9,7 +9,7 @@ def init():
 # api
 def update():
     action_process.login_process.update()
-    action_process.validate_process.update()
+    # action_process.validate_process.update()
 
 
 def stop():
