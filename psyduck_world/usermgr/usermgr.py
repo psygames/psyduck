@@ -102,16 +102,7 @@ class LoginProcedure:
         db.user_set(self.act['uid'], username, 'online')
 
 
-def loop_check():
-    login_process()
-
-
-def stop_all():
-    for p in login_procedure:
-        p.force_stop()
-    login_procedure.clear()
-
-
+# login
 def login_verify_get():
     act = db.act_get('user', 'login_verify_get', 'request')
     if act is None:
@@ -163,3 +154,28 @@ def login_process():
     login_verify_get()
     login_verify_set()
     login_procedure_update()
+
+
+# validate
+def validate_request():
+    pass
+
+
+def validate_auto():
+    pass
+
+
+def validate_process():
+    pass
+
+
+# api
+def loop_update():
+    login_process()
+    validate_process()
+
+
+def stop_all():
+    for p in login_procedure:
+        p.force_stop()
+    login_procedure.clear()

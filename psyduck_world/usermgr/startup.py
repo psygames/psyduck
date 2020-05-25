@@ -30,4 +30,4 @@ def main_loop():
 
 
 def main():
-    usermgr.usermgr.loop_check()
+    usermgr.usermgr.loop_update()

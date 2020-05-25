@@ -25,9 +25,9 @@ def user_init():
 
 def user_set(uid, csdn, state):
     if user.find_one({'uid': uid, 'csdn': csdn}) is None:
-        user.insert_one({'csdn': csdn, 'state': state})
+        user.insert_one({'uid': uid, 'csdn': csdn, 'state': state})
     else:
-        user.update_one({'csdn': csdn}, {'$set': {'state': state}})
+        user.update_one({'uid': uid, 'csdn': csdn}, {'$set': {'state': state}})
 
 
 # act
@@ -37,17 +37,17 @@ def act_init():
 
     # test
     if act.find_one({'id': 0}) is None:
-        act_create(0, 0, 'user', 'login', 'request')
+        act_create(0, 'admin', 'user', 'login', 'request')
     else:
         act_set(0, 'request')
 
     if act.find_one({'id': 1}) is None:
-        act_create(1, 0, 'user', 'login_verify_get', 'done', '18600105483')
+        act_create(1, 'admin', 'user', 'login_verify_get', 'done', '18600105483')
     else:
         act_set(1, 'done', '18600105483')
 
     if act.find_one({'id': 2}) is None:
-        act_create(2, 0, 'user', 'login_verify_set', 'done', '000000')
+        act_create(2, 'admin', 'user', 'login_verify_set', 'done', '000000')
     else:
         act_set(2, 'done', '000000')
 
