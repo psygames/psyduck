@@ -20,14 +20,22 @@ def user_init():
     user = db['csdn_user']
 
     # test
-    # user_set('y85171642', 'online')
+    # user_set('admin', 'y85171642', 'on')
 
 
-def user_set(uid, csdn, state):
+def user_set_state(uid, csdn, state):
     if user.find_one({'uid': uid, 'csdn': csdn}) is None:
         user.insert_one({'uid': uid, 'csdn': csdn, 'state': state})
     else:
         user.update_one({'uid': uid, 'csdn': csdn}, {'$set': {'state': state}})
+
+
+def user_get(uid, csdn):
+    return user.find_one({'uid': uid, 'csdn': csdn})
+
+
+def user_get_by_state(state):
+    return user.find_one({'state': state})
 
 
 # act
@@ -39,7 +47,7 @@ def act_init():
     if act.find_one({'id': 0}) is None:
         act_create(0, 'admin', 'user', 'login', 'request')
     else:
-        act_set(0, 'request')
+        act_set(0, 'done')
 
     if act.find_one({'id': 1}) is None:
         act_create(1, 'admin', 'user', 'login_verify_get', 'done', '18600105483')

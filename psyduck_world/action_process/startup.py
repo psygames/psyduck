@@ -1,6 +1,6 @@
 import threading
 import time
-import usermgr.usermgr
+import action_process.manager
 
 name = "用户管理器"
 log = False
@@ -15,7 +15,7 @@ def run():
 
 def stop():
     global _looping
-    usermgr.usermgr.stop_all()
+    action_process.manager.stop()
     _looping = False
 
 
@@ -30,4 +30,4 @@ def main_loop():
 
 
 def main():
-    usermgr.usermgr.loop_update()
+    action_process.manager.update()

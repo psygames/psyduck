@@ -1,8 +1,6 @@
-from core import db
 import core.helper
 from datetime import datetime
-
-login_procedure = []
+from core import db
 
 
 class LoginProcedure:
@@ -16,7 +14,7 @@ class LoginProcedure:
         self.helper = core.helper.Helper()
         self.current_func = self.process_start
 
-    def force_stop(self):
+    def stop(self):
         self._over()
 
     def _over(self, rm_option=True):
@@ -43,8 +41,8 @@ class LoginProcedure:
             print('登录超时')
 
     def process_start(self):
-        print('初始化...')
-        self.helper.init(f'{self.act["uid"]}_tmp_option')
+        print('登陆初始化...')
+        self.helper.init(f'_tmp_option_login_{self.act["uid"]}')
         self.current_func = self.goto_login
 
     def goto_login(self):
@@ -89,93 +87,19 @@ class LoginProcedure:
 
     def done(self):
         self.set_state('done')
-        username = self.helper.get_username()
-        if not self.helper.has_option(username):
+        csdn = self.helper.get_username()
+        if not self.helper.has_option(csdn):
             self._over(False)
-            self.helper.save_tmp_option(username)
+            self.helper.save_tmp_option(csdn)
         else:
             self._over()
 
-        print('登录完成: ' + username)
+        print('登录完成: ' + csdn)
 
         # save to csdn user
-        db.user_set(self.act['uid'], username, 'online')
+        db.user_set_state(self.act['uid'], csdn, 'on')
 
-
-# login
-def login_verify_get():
-    act = db.act_get('user', 'login_verify_get', 'request')
-    if act is None:
-        return
-    solved = False
-    for p in login_procedure:
-        if p.act['uid'] == act['uid']:
-            p.get_verify_code(act['message'])
-            db.act_set(act['id'], 'done', act['message'])
-            solved = True
-            break
-    if not solved:
-        db.act_set(act['id'], 'fail', 'procedure not exist.')
-
-
-def login_verify_set():
-    act = db.act_get('user', 'login_verify_set', 'request')
-    if act is None:
-        return
-    solved = False
-    for p in login_procedure:
-        if p.act['uid'] == act['uid']:
-            p.set_verify_code(act['message'])
-            db.act_set(act['id'], 'done', act['message'])
-            solved = True
-            break
-    if not solved:
-        db.act_set(act['id'], 'fail', 'procedure not exist.')
-
-
-def login_request():
-    act = db.act_get('user', 'login', 'request')
-    if act is None:
-        return
-    db.act_set(act['id'], 'process')
-    login_procedure.append(LoginProcedure(act))
-
-
-def login_procedure_update():
-    for p in login_procedure:
-        if p.over:
-            login_procedure.remove(p)
-            continue
-        p.update()
-
-
-def login_process():
-    login_request()
-    login_verify_get()
-    login_verify_set()
-    login_procedure_update()
-
-
-# validate
-def validate_request():
-    pass
-
-
-def validate_auto():
-    pass
-
-
-def validate_process():
-    pass
-
-
-# api
-def loop_update():
-    login_process()
-    validate_process()
-
-
-def stop_all():
-    for p in login_procedure:
-        p.force_stop()
-    login_procedure.clear()
+        self.helper = core.helper.Helper()
+        self.helper.init(csdn)
+        print("check login : " + self.helper.check_login())
+        self.helper.dispose()

@@ -1,5 +1,5 @@
 from initialize import initialize
-import usermgr.startup
+import action_process.startup
 import downloader.startup
 import uploader.startup
 import time
@@ -9,7 +9,7 @@ def main():
     result = initialize.init()
     if not result:
         print("初始化失败！")
-    usermgr.startup.run()
+    action_process.startup.run()
     # downloader.startup.run()
     # uploader.startup.run()
 
@@ -24,4 +24,4 @@ if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        usermgr.startup.stop()
+        action_process.startup.stop()
