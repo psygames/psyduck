@@ -20,30 +20,26 @@ class LoginProcedure:
 
     def _over(self, rm_option=True):
         self.over = True
+        self.current_func = None
         if self.helper is not None:
             self.helper.dispose(rm_option)
 
     def set_state(self, state, message='', file=''):
         db.act_set(self.act['id'], state, message, file)
         self.act['state'] = state
+        self.act['message'] = message
+        self.act['file'] = file
 
     def update(self):
-        if self.check_timeout():
-            return
+        self.check_timeout()
         if self.current_func is not None:
             self.current_func()
 
     def check_timeout(self):
-        if self.act['state'] == 'fail' and self.act['message'] == 'timeout':
-            return True
-        if self.act['state'] == 'done':
-            return False
         if (datetime.now() - self.act['time']).seconds >= 120:
             self.set_state('fail', 'timeout')
             self._over()
             print('登录超时')
-            return True
-        return False
 
     def process_start(self):
         print('初始化...')
@@ -101,7 +97,6 @@ class LoginProcedure:
             self._over()
         db.user_set(username, 'online')
         print('登录完成: ' + username)
-        self.current_func = None
 
 
 def loop_check():
@@ -118,22 +113,30 @@ def login_verify_get():
     act = db.act_get('user', 'login_verify_get', 'request')
     if act is None:
         return
+    solved = False
     for p in login_procedure:
         if p.act['uid'] == act['uid']:
             p.get_verify_code(act['message'])
             db.act_set(act['id'], 'done', act['message'])
+            solved = True
             break
+    if not solved:
+        db.act_set(act['id'], 'fail', 'procedure not exist.')
 
 
 def login_verify_set():
     act = db.act_get('user', 'login_verify_set', 'request')
     if act is None:
         return
+    solved = False
     for p in login_procedure:
         if p.act['uid'] == act['uid']:
             p.set_verify_code(act['message'])
             db.act_set(act['id'], 'done', act['message'])
+            solved = True
             break
+    if not solved:
+        db.act_set(act['id'], 'fail', 'procedure not exist.')
 
 
 def login_request():
@@ -144,9 +147,16 @@ def login_request():
     login_procedure.append(LoginProcedure(act))
 
 
+def login_procedure_update():
+    for p in login_procedure:
+        if p.over:
+            login_procedure.remove(p)
+            continue
+        p.update()
+
+
 def login_process():
     login_request()
     login_verify_get()
     login_verify_set()
-    for p in login_procedure:
-        p.update()
+    login_procedure_update()
