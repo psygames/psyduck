@@ -17,7 +17,7 @@ def fake_add_request(uid, csdn):
 
 def validate_auto():
     global last_auto_validate_time
-    if (datetime.datetime.now() - last_auto_validate_time).seconds < 10:
+    if (datetime.datetime.now() - last_auto_validate_time).seconds < 20:
         return
     last_auto_validate_time = datetime.datetime.now()
     u = core.db.user_get_by_state('on')

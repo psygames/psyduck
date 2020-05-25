@@ -5,6 +5,15 @@ import uploader.startup
 import time
 
 
+def test():
+    # test options
+    from core import helper
+    helper = helper.Helper()
+    helper.init(f'y85171642')
+    print(f"重复验证登陆Option有效性 : {helper.check_login()}")
+    helper.dispose(False)
+
+
 def main():
     result = initialize.init()
     if not result:

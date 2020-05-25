@@ -1,6 +1,9 @@
 import core.helper
 from datetime import datetime
 from core import db
+import shutil
+import core.config
+import os
 
 
 class LoginProcedure:
@@ -88,19 +91,15 @@ class LoginProcedure:
     def done(self):
         self.set_state('done')
         csdn = self.helper.get_username()
-        if not self.helper.has_option(csdn):
-            self._over(False)
-            self.helper.save_tmp_option(csdn)
-        else:
-            self._over()
+        _option_path = core.config.frozen_path(f'caches/options/{csdn}')
+        if os.path.exists(_option_path):
+            print(f'已存在option： {csdn} 自动删除')
+            shutil.rmtree(_option_path)
+
+        self._over(False)
+        self.helper.save_tmp_option(csdn)
 
         print('登录完成: ' + csdn)
 
         # save to csdn user
         db.user_set_state(self.act['uid'], csdn, 'on')
-
-        # test options
-        self.helper = core.helper.Helper()
-        self.helper.init(csdn)
-        print(f"重复验证登陆Option有效性 : {self.helper.check_login()}")
-        self.helper.dispose()

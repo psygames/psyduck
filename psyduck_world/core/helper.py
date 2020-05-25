@@ -142,12 +142,6 @@ class Helper:
         username = self.find('//span[@class="id_name"]').text[3:]
         return username
 
-    def has_option(self, option_name):
-        _option_path = os.path.join(os.path.dirname(self.tmp_option_path), option_name)
-        if os.path.exists(_option_path):
-            return True
-        return False
-
     def save_tmp_option(self, option_name):
         _option_path = os.path.join(os.path.dirname(self.tmp_option_path), option_name)
         shutil.move(self.tmp_option_path, _option_path)
@@ -190,8 +184,11 @@ class Helper:
 
     def dispose(self, rm_option=True):
         if self.driver is not None:
+            time.sleep(1)
             self.driver.close()
+            time.sleep(1)
             self.driver.quit()
+            time.sleep(1)
             self.driver.stop_client()
             self.driver = None
         self.is_driver_busy = False
