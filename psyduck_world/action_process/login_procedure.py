@@ -27,11 +27,11 @@ class LoginProcedure:
         if self.helper is not None:
             self.helper.dispose(rm_option)
 
-    def set_state(self, state, message='', file=''):
-        db.act_set(self.act['id'], state, message, file)
+    def set_state(self, state, message, result):
+        db.act_set(self.act['id'], state, message, result)
         self.act['state'] = state
         self.act['message'] = message
-        self.act['file'] = file
+        self.act['result'] = result
 
     def update(self):
         self.check_timeout()
@@ -40,7 +40,7 @@ class LoginProcedure:
 
     def check_timeout(self):
         if (datetime.now() - self.act['time']).seconds >= 120:
-            self.set_state('fail', 'timeout')
+            self.set_state('fail', self.act['message'], 'timeout')
             self._over()
             print('登录超时')
 
@@ -54,7 +54,7 @@ class LoginProcedure:
     def goto_login(self):
         print('获取二维码')
         qr = self.helper.get_scan_qr()
-        self.set_state('scan', message=qr)
+        self.set_state('scan', self.act['message'], qr)
         print('等待扫码')
         self.current_func = self.wait_scan
 
@@ -65,7 +65,7 @@ class LoginProcedure:
 
     def scan_next(self):
         if self.helper.is_login_wait_for_verify():
-            self.set_state('verify')
+            self.set_state('verify', self.act['message'], self.act['result'])
             self.current_func = self.wait_verify
             print('等待验证')
         elif self.helper.is_login_success():
@@ -92,8 +92,13 @@ class LoginProcedure:
             self.current_func = self.done
 
     def done(self):
-        self.set_state('done')
         csdn = self.helper.get_username()
+        if csdn is None or csdn == '':
+            self.set_state('fail', self.act['message'], 'timeout')
+            self._over()
+            print('获取 CSDN 用户信息失败: ' + self.act['uid'])
+            return
+        self.set_state('done', self.act['message'], self.act['result'])
         self._over(False)
         file_helper.move_option(self.helper.option_name, csdn)
         print('登录完成: ' + csdn)

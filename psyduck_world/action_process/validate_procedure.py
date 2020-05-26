@@ -23,6 +23,9 @@ class ValidateProcedure:
     def process_start(self):
         print('验证登陆初始化...')
         _des_option = f'_tmp_option_validate_{self.csdn}'
+        if not file_helper.has_option(self.csdn):
+            self.fail(f'option not exist')
+            return
         res = file_helper.copy_option(self.csdn, _des_option)
         if not res:
             return
@@ -40,12 +43,12 @@ class ValidateProcedure:
         if self.helper is not None:
             self.helper.dispose()
 
-    def set_state(self, state, message='', file=''):
+    def set_state(self, state, message, result):
         if self.act['id'] != 'fake_validate':
-            db.act_set(self.act['id'], state, message, file)
+            db.act_set(self.act['id'], state, message, result)
         self.act['state'] = state
         self.act['message'] = message
-        self.act['file'] = file
+        self.act['result'] = result
 
     def update(self):
         self.check_timeout()
@@ -54,7 +57,7 @@ class ValidateProcedure:
 
     def check_timeout(self):
         if (datetime.now() - self.act['time']).seconds >= 30:
-            self.set_state('fail', 'timeout')
+            self.set_state('fail', self.act['message'], 'timeout')
             self._over()
             print('验证超时')
 
@@ -68,17 +71,17 @@ class ValidateProcedure:
 
     def expired(self):
         self._over()
-        self.set_state('done', 'expired')
+        self.set_state('done', self.act['message'], 'expired')
         db.user_set_state(self.act['uid'], self.csdn, 'expired')
         print(f'验证登陆状态（失效）: {self.csdn}')
 
     def fail(self, msg):
         self._over()
-        self.set_state('fail', msg)
+        self.set_state('fail', self.act['message'], msg)
         print(f'验证登陆状态发生错误（{msg}）: {self.csdn}')
 
     def done(self):
         self._over()
-        self.set_state('done', 'on')
+        self.set_state('done', self.act['message'], 'on')
         db.user_set_state(self.act['uid'], self.csdn, 'on')
         print(f'验证登陆状态（有效）: {self.csdn}')

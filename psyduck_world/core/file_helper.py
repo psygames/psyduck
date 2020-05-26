@@ -8,6 +8,10 @@ def _option_path(name):
     return core.path.frozen_path(f'caches/options/{name}')
 
 
+def has_option(name):
+    return os.path.exists(_option_path(name))
+
+
 def lock_option(name):
     _path = _option_path(name + '.lock')
     if not os.path.isfile(_path):  # 无文件时创建
@@ -47,7 +51,7 @@ def move_option(src_name, des_name):
     _des_path = _option_path(des_name)
     if os.path.exists(_des_path):
         shutil.rmtree(_des_path)
-    shutil.move(_src_path, _src_path)
+    shutil.move(_src_path, _des_path)
     unlock_option(src_name)
     unlock_option(des_name)
     return True

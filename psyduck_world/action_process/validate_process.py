@@ -6,16 +6,20 @@ last_auto_validate_time = datetime.datetime.now()
 procedures = []
 
 
-def validate_request():
-    pass
-
-
-def fake_add_request(uid, csdn):
-    act = {'id': 'fake_validate', 'uid': uid, 'message': csdn, 'state': 'request', 'time': datetime.datetime.now()}
+def process_request():
+    act = core.db.act_get('user', 'validate', 'request')
+    if act is None:
+        return
+    core.db.act_set(act['id'], 'process', act['message'], act['result'])
     procedures.append(action_process.validate_procedure.ValidateProcedure(act))
 
 
-def validate_auto():
+def fake_add_request(uid, csdn):
+    act = {'id': 'fake_validate', 'uid': uid, 'message': csdn, 'state': 'process', 'time': datetime.datetime.now()}
+    procedures.append(action_process.validate_procedure.ValidateProcedure(act))
+
+
+def auto_validate():
     global last_auto_validate_time
     if (datetime.datetime.now() - last_auto_validate_time).seconds < 20:
         return
@@ -25,7 +29,7 @@ def validate_auto():
         fake_add_request(u['uid'], u['csdn'])
 
 
-def validate_process():
+def procedure_update():
     for p in procedures:
         if p.over:
             procedures.remove(p)
@@ -34,9 +38,9 @@ def validate_process():
 
 
 def update():
-    validate_request()
-    validate_auto()
-    validate_process()
+    process_request()
+    # auto_validate()
+    procedure_update()
 
 
 def stop():

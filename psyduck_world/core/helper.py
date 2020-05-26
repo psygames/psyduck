@@ -10,9 +10,7 @@ from core import file_helper
 
 class Helper:
     driver: selenium.webdriver.Chrome = None
-
     is_driver_busy = False
-
     zip_save_path = path.frozen_path('caches/zips')
     download_path = path.frozen_path('caches/downloads')
     drivers_path = path.frozen_path('caches/drivers')
@@ -20,19 +18,6 @@ class Helper:
     option_name = ''
     tmp_driver_dir = ''
     tmp_option_path = ''
-
-    def create_dir(self):
-        dirs = [
-            path.frozen_path('caches/'),
-            self.zip_save_path,
-            self.download_path,
-            self.drivers_path,
-            self.options_path,
-        ]
-
-        for _dir in dirs:
-            if not os.path.exists(_dir):
-                os.mkdir(_dir)
 
     def __get_tmp_driver(self):
         import datetime
@@ -47,7 +32,6 @@ class Helper:
         file_helper.lock_option(_option_name)
         self.is_driver_busy = True
         self.__get_tmp_driver()
-        self.create_dir()
         self.option_name = _option_name
         self.tmp_option_path = os.path.join(self.options_path, _option_name)
         _driver_path = os.path.join(self.tmp_driver_dir, 'chromedriver')
@@ -195,8 +179,9 @@ class Helper:
             time.sleep(1)
             self.driver.stop_client()
             self.driver = None
+        if self.is_driver_busy:
+            file_helper.unlock_option(self.option_name)
         self.is_driver_busy = False
-        file_helper.unlock_option(self.option_name)
         if os.path.exists(self.tmp_driver_dir):
             time.sleep(0.1)
             shutil.rmtree(self.tmp_driver_dir)
