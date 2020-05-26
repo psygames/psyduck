@@ -54,6 +54,11 @@ class LoginProcedure:
     def goto_login(self):
         print('获取二维码')
         qr = self.helper.get_scan_qr()
+        if qr is None or qr == '':
+            self.set_state('fail', self.act['message'], 'get qrcode fail')
+            self._over()
+            print('获取登陆二维码失败')
+            return
         self.set_state('scan', self.act['message'], qr)
         print('等待扫码')
         self.current_func = self.wait_scan
