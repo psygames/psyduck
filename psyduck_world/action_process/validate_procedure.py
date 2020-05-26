@@ -1,9 +1,10 @@
 import core.helper
-import core.config
+import core.path
 from datetime import datetime
 from core import db
 import os
 import shutil
+from core import file_helper
 
 
 class ValidateProcedure:
@@ -21,15 +22,14 @@ class ValidateProcedure:
 
     def process_start(self):
         print('验证登陆初始化...')
-        _src_option = f'caches/options/{self.csdn}'
-        _des_option = f'caches/options/_tmp_option_validate_{self.csdn}'
-        if not os.path.exists(_src_option):
-            self.fail(f'option not exist.')
-        else:
-            if not os.path.exists(core.config.frozen_path(_des_option)):
-                shutil.copytree(_src_option, _des_option)
-            self.helper.init(f'_tmp_option_validate_{self.csdn}')
-            self.current_func = self.goto_validate
+        _des_option = f'_tmp_option_validate_{self.csdn}'
+        res = file_helper.copy_option(self.csdn, _des_option)
+        if not res:
+            return
+        res = self.helper.init(_des_option)
+        if not res:
+            return
+        self.current_func = self.goto_validate
 
     def stop(self):
         self._over()

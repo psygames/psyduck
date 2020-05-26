@@ -2,8 +2,9 @@ import core.helper
 from datetime import datetime
 from core import db
 import shutil
-import core.config
+import core.path
 import os
+from core import file_helper
 
 
 class LoginProcedure:
@@ -45,7 +46,9 @@ class LoginProcedure:
 
     def process_start(self):
         print('登陆初始化...')
-        self.helper.init(f'_tmp_option_login_{self.act["uid"]}')
+        res = self.helper.init(f'_tmp_option_login_{self.act["uid"]}')
+        if not res:
+            return
         self.current_func = self.goto_login
 
     def goto_login(self):
@@ -91,15 +94,7 @@ class LoginProcedure:
     def done(self):
         self.set_state('done')
         csdn = self.helper.get_username()
-        _option_path = core.config.frozen_path(f'caches/options/{csdn}')
-        if os.path.exists(_option_path):
-            print(f'已存在option： {csdn} 自动删除')
-            shutil.rmtree(_option_path)
-
         self._over(False)
-        self.helper.save_tmp_option(csdn)
-
+        file_helper.move_option(self.helper.option_name, csdn)
         print('登录完成: ' + csdn)
-
-        # save to csdn user
         db.user_set_state(self.act['uid'], csdn, 'on')

@@ -2,9 +2,10 @@ import selenium.webdriver
 import time
 import platform
 import os
-from core import config
+from core import path
 import shutil
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from core import file_helper
 
 
 class Helper:
@@ -12,16 +13,17 @@ class Helper:
 
     is_driver_busy = False
 
-    zip_save_path = config.frozen_path('caches/zips')
-    download_path = config.frozen_path('caches/downloads')
-    drivers_path = config.frozen_path('caches/dirvers')
-    options_path = config.frozen_path('caches/options')
+    zip_save_path = path.frozen_path('caches/zips')
+    download_path = path.frozen_path('caches/downloads')
+    drivers_path = path.frozen_path('caches/dirvers')
+    options_path = path.frozen_path('caches/options')
+    option_name = ''
     tmp_driver_dir = ''
     tmp_option_path = ''
 
     def create_dir(self):
         dirs = [
-            config.frozen_path('caches/'),
+            path.frozen_path('caches/'),
             self.zip_save_path,
             self.download_path,
             self.drivers_path,
@@ -35,13 +37,18 @@ class Helper:
     def __get_tmp_driver(self):
         import datetime
         _name = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S_%f')
-        self.tmp_driver_dir = config.frozen_path(f'caches/drivers/{_name}')
-        shutil.copytree(config.frozen_path('driver'), self.tmp_driver_dir)
+        self.tmp_driver_dir = path.frozen_path(f'caches/drivers/{_name}')
+        shutil.copytree(path.frozen_path('driver'), self.tmp_driver_dir)
 
     def init(self, _option_name='', mobile_mode=True):
+        if file_helper.is_lock_option(_option_name):
+            print(f'初始化 Helper 失败, option 已被锁定 {_option_name}')
+            return False
+        file_helper.lock_option(_option_name)
         self.is_driver_busy = True
         self.__get_tmp_driver()
         self.create_dir()
+        self.option_name = _option_name
         self.tmp_option_path = os.path.join(self.options_path, _option_name)
         _driver_path = os.path.join(self.tmp_driver_dir, 'chromedriver')
         if platform.system() == 'Windows':
@@ -77,6 +84,7 @@ class Helper:
         self.driver = selenium.webdriver.Chrome(options=options, executable_path=_driver_path, desired_capabilities=cap)
         self.driver.set_window_size(500, 800)
         self.reset_timeout()
+        return True
 
     def reset_timeout(self):
         self.driver.set_page_load_timeout(10)
@@ -142,10 +150,6 @@ class Helper:
         username = self.find('//span[@class="id_name"]').text[3:]
         return username
 
-    def save_tmp_option(self, option_name):
-        _option_path = os.path.join(os.path.dirname(self.tmp_option_path), option_name)
-        shutil.move(self.tmp_option_path, _option_path)
-
     def get(self, url, timeout=10, retry=3):
         self.driver.get(url)
         time.sleep(1)
@@ -192,6 +196,7 @@ class Helper:
             self.driver.stop_client()
             self.driver = None
         self.is_driver_busy = False
+        file_helper.unlock_option(self.option_name)
         if os.path.exists(self.tmp_driver_dir):
             time.sleep(0.1)
             shutil.rmtree(self.tmp_driver_dir)
