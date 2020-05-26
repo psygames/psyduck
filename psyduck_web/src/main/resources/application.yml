@@ -1,0 +1,23 @@
+spring:
+  data:
+    mongodb:
+      host: 127.0.0.1
+      port: 27017
+      username: zmxianlin
+      password: '123456'
+      database: monster
+  main: 
+    allow-bean-definition-overriding: true
+
+
+  redis: 
+    host: 127.0.0.1
+    port: 6379
+  session: 
+    store-type: redis
+
+  mvc: 
+    view: 
+      prefix: /WEB-INF/jsp/
+      suffix: .jsp
+

@@ -1,4 +1,4 @@
-package com.cjy.csdn.system.security;
+package com.cjy.csdn.security;
 
 import java.awt.Color;
 import java.awt.Font;

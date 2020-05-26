@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.cjy.csdn.system.entity.SysUser;
+import com.cjy.csdn.system.model.SysUser;
 import com.cjy.csdn.system.service.ISysUserService;
 
 @Controller

@@ -3,7 +3,7 @@ package com.cjy.csdn.system.service;
 
 import java.util.List;
 
-import com.cjy.csdn.system.entity.SysPermission;
+import com.cjy.csdn.system.model.SysPermission;
 
 public interface ISysPermissionService {
     /**

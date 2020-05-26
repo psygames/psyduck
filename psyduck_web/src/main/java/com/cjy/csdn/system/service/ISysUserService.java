@@ -1,6 +1,6 @@
 package com.cjy.csdn.system.service;
 
-import com.cjy.csdn.system.entity.SysUser;
+import com.cjy.csdn.system.model.SysUser;
 
 public interface ISysUserService {
 

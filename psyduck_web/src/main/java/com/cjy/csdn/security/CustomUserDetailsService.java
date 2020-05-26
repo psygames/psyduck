@@ -1,4 +1,4 @@
-package com.cjy.csdn.system.security;
+package com.cjy.csdn.security;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,9 +13,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.cjy.csdn.system.entity.SysRole;
-import com.cjy.csdn.system.entity.SysUser;
-import com.cjy.csdn.system.entity.SysUserRole;
+import com.cjy.csdn.system.model.SysRole;
+import com.cjy.csdn.system.model.SysUser;
+import com.cjy.csdn.system.model.SysUserRole;
 import com.cjy.csdn.system.service.ISysRoleService;
 import com.cjy.csdn.system.service.ISysUserRoleService;
 import com.cjy.csdn.system.service.ISysUserService;

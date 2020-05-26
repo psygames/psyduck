@@ -2,7 +2,7 @@ package com.cjy.csdn.system.service;
 
 import java.util.List;
 
-import com.cjy.csdn.system.entity.SysUserRole;
+import com.cjy.csdn.system.model.SysUserRole;
 
 public interface ISysUserRoleService {
 

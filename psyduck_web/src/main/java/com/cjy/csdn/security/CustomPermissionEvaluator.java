@@ -1,4 +1,4 @@
-package com.cjy.csdn.system.security;
+package com.cjy.csdn.security;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -11,7 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
-import com.cjy.csdn.system.entity.SysPermission;
+import com.cjy.csdn.system.model.SysPermission;
 import com.cjy.csdn.system.service.ISysPermissionService;
 import com.cjy.csdn.system.service.ISysRoleService;
 

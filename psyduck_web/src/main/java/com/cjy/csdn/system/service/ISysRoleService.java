@@ -1,6 +1,6 @@
 package com.cjy.csdn.system.service;
 
-import com.cjy.csdn.system.entity.SysRole;
+import com.cjy.csdn.system.model.SysRole;
 
 public interface ISysRoleService {
 

@@ -1,15 +1,16 @@
-package com.cjy.csdn.system;
+package com.cjy.csdn;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
-import com.cjy.csdn.system.security.VerifyServlet;
+import com.cjy.csdn.security.VerifyServlet;
 
 @EnableRedisHttpSession
-@SpringBootApplication
+@SpringBootApplication(exclude= {DataSourceAutoConfiguration.class})
 public class App 
 {
     public static void main( String[] args )
