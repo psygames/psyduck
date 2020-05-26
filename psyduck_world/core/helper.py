@@ -2,46 +2,37 @@ import selenium.webdriver
 import time
 import platform
 import os
-from core import config
+from core import path
 import shutil
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from core import file_helper
 
 
 class Helper:
     driver: selenium.webdriver.Chrome = None
-
     is_driver_busy = False
-
-    zip_save_path = config.frozen_path('caches/zips')
-    download_path = config.frozen_path('caches/downloads')
-    drivers_path = config.frozen_path('caches/dirvers')
-    options_path = config.frozen_path('caches/options')
+    zip_save_path = path.frozen_path('caches/zips')
+    download_path = path.frozen_path('caches/downloads')
+    drivers_path = path.frozen_path('caches/drivers')
+    options_path = path.frozen_path('caches/options')
+    option_name = ''
     tmp_driver_dir = ''
     tmp_option_path = ''
-
-    def create_dir(self):
-        dirs = [
-            config.frozen_path('caches/'),
-            self.zip_save_path,
-            self.download_path,
-            self.drivers_path,
-            self.options_path,
-        ]
-
-        for _dir in dirs:
-            if not os.path.exists(_dir):
-                os.mkdir(_dir)
 
     def __get_tmp_driver(self):
         import datetime
         _name = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S_%f')
-        self.tmp_driver_dir = config.frozen_path(f'caches/drivers/{_name}')
-        shutil.copytree(config.frozen_path('driver'), self.tmp_driver_dir)
+        self.tmp_driver_dir = path.frozen_path(f'caches/drivers/{_name}')
+        shutil.copytree(path.frozen_path('driver'), self.tmp_driver_dir)
 
     def init(self, _option_name='', mobile_mode=True):
+        if file_helper.is_lock_option(_option_name):
+            print(f'初始化 Helper 失败, option 已被锁定 {_option_name}')
+            return False
+        file_helper.lock_option(_option_name)
         self.is_driver_busy = True
         self.__get_tmp_driver()
-        self.create_dir()
+        self.option_name = _option_name
         self.tmp_option_path = os.path.join(self.options_path, _option_name)
         _driver_path = os.path.join(self.tmp_driver_dir, 'chromedriver')
         if platform.system() == 'Windows':
@@ -77,10 +68,15 @@ class Helper:
         self.driver = selenium.webdriver.Chrome(options=options, executable_path=_driver_path, desired_capabilities=cap)
         self.driver.set_window_size(500, 800)
         self.reset_timeout()
+        return True
 
     def reset_timeout(self):
         self.driver.set_page_load_timeout(10)
         self.driver.set_script_timeout(10)
+
+    def scroll_to(self, horizontal, vertical):
+        js = f"window.scrollTo({horizontal},{vertical})"
+        self.driver.execute_script(js)
 
     def is_busy(self):
         return self.is_driver_busy
@@ -89,10 +85,33 @@ class Helper:
         if self.driver is None:
             return ""
         self.get('https://passport.csdn.net/login')
+        self.scroll_to(520, 0)
         self.driver.switch_to.frame('iframe_id')
         src = self.find('//img[@class="qrcode lightBorder"]').get_attribute('src')
         self.driver.switch_to.default_content()
         return src
+
+    def get_verify_code(self, phone):
+        if self.driver is None:
+            return
+        _input = self.find('//input[@id="phone"]')
+        _input.clear()
+        _input.send_keys(phone)
+        btn = self.find('//button[@class="btn btn-confirm btn-control"]')
+        btn.click()
+
+    def set_verify_code(self, code):
+        if self.driver is None:
+            return
+        _input = self.find('//input[@id="code"]')
+        _input.clear()
+        _input.send_keys(code)
+        btn = self.find('//button[@data-type="accountSecur"]')
+        btn.click()
+        time.sleep(1)
+        a = self.find('//a[text()="以后再说"]')
+        if a is not None:
+            a.click()
 
     def is_login_wait_for_verify(self):
         if self.driver is None:
@@ -114,9 +133,6 @@ class Helper:
         self.get('https://i.csdn.net/#/uc/profile')
         username = self.find('//span[@class="id_name"]').text[3:]
         return username
-
-    def save_tmp_option(self, option_name):
-        shutil.copytree(self.tmp_option_path, os.path.join(os.path.dirname(self.tmp_option_path), option_name))
 
     def get(self, url, timeout=10, retry=3):
         self.driver.get(url)
@@ -154,16 +170,22 @@ class Helper:
     def set_window_size(self, width, height):
         self.driver.set_window_size(width, height)
 
-    def dispose(self):
+    def dispose(self, rm_option=True):
         if self.driver is not None:
-            self.driver.stop_client()
+            time.sleep(1)
+            self.driver.close()
+            time.sleep(1)
             self.driver.quit()
+            time.sleep(1)
+            self.driver.stop_client()
             self.driver = None
+        if self.is_driver_busy:
+            file_helper.unlock_option(self.option_name)
         self.is_driver_busy = False
         if os.path.exists(self.tmp_driver_dir):
             time.sleep(0.1)
             shutil.rmtree(self.tmp_driver_dir)
-        if os.path.exists(self.tmp_option_path):
+        if rm_option and os.path.exists(self.tmp_option_path):
             time.sleep(0.1)
             shutil.rmtree(self.tmp_option_path)
 
@@ -187,8 +209,9 @@ class Helper:
             if not self.__valid_download_url(url):
                 return self.__download_result(False, "无效的下载地址")
 
-            step = 'login'
-            self.auto_login()
+            step = 'check login'
+            if not self.check_login():
+                pass
 
             step = 'get url'
             self.get(url)

@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 downloader/chrome_options
 *.idea/
+psyduck_world/caches

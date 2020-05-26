@@ -1,11 +1,11 @@
 import lanzou_api
-from core import config
+from core import path
 import os
 import time
 import db_helper
 
-username = config.lanzou_username
-password = config.lanzou_password
+username = path.lanzou_username
+password = path.lanzou_password
 folder_name = 'CSDN'
 
 lzy = lanzou_api.LanZouCloud()
@@ -19,9 +19,9 @@ def auto_sync_loop():
     cloud_files.update(list_dir['folder_list'])
     print('拉取文件列表完成。')
     while True:
-        local_files = os.listdir(config.zip_save_path)
+        local_files = os.listdir(path.zip_save_path)
         for lf in local_files:
-            f_path = os.path.join(config.zip_save_path, lf)
+            f_path = os.path.join(path.zip_save_path, lf)
             f_size = os.path.getsize(f_path)
             f_id = lf[:-4]
             # 文件的修改时间小于10分钟则不进行上传
