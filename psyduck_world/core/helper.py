@@ -15,7 +15,7 @@ class Helper:
 
     zip_save_path = path.frozen_path('caches/zips')
     download_path = path.frozen_path('caches/downloads')
-    drivers_path = path.frozen_path('caches/dirvers')
+    drivers_path = path.frozen_path('caches/drivers')
     options_path = path.frozen_path('caches/options')
     option_name = ''
     tmp_driver_dir = ''
