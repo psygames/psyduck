@@ -3,6 +3,7 @@ import action_process.startup
 import downloader.startup
 import uploader.startup
 import time
+import webserver.startup
 
 
 def test():
@@ -19,9 +20,9 @@ def main():
     if not result:
         print("初始化失败！")
     action_process.startup.run()
+    webserver.startup.run()
     # downloader.startup.run()
     # uploader.startup.run()
-
     loop = 0
     while True:
         loop += 1

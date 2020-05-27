@@ -70,7 +70,7 @@ def login():
     print('登录蓝奏...')
     global lzy
     lzy = lanzou_api.LanZouCloud()
-    lzy.login_procedure(username, password)
+    lzy.procedures(username, password)
 
 
 def main_loop():
