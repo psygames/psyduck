@@ -20,8 +20,8 @@ class LoginProcedure:
         self.current_func = self.process_start
 
     def process_start(self):
-        self.busy = True
         print('登陆初始化...')
+        self.busy = True
         self.time = datetime.now()
         res = self.helper.init(f'_tmp_option_login_{self.uid}')
         if not res:
