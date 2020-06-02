@@ -12,5 +12,5 @@ def clear_caches():
             os.remove(core.path.frozen_path(f'caches/options/{fi}'))
             print(f'已清理 option: {fi}')
     for fi in os.listdir(core.path.frozen_path('caches/drivers/')):
-        shutil.rmtree(f'caches/drivers/{fi}')
+        shutil.rmtree(core.path.frozen_path(f'caches/drivers/{fi}'))
         print(f'已清理 driver: {fi}')

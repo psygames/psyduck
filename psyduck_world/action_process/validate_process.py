@@ -15,6 +15,7 @@ def process_request():
 
 
 def fake_add_request(uid, csdn):
+    # todo fake data save to db
     act = {'id': 'fake_validate', 'uid': uid, 'message': csdn, 'state': 'process', 'time': datetime.datetime.now()}
     procedures.append(action_process.validate_procedure.ValidateProcedure(act))
 

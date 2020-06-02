@@ -57,9 +57,9 @@ class ValidateProcedure:
 
     def check_timeout(self):
         if (datetime.now() - self.act['time']).seconds >= 30:
+            print('验证超时')
             self.set_state('fail', self.act['message'], 'timeout')
             self._over()
-            print('验证超时')
 
     def goto_validate(self):
         print('开始验证登陆状态')
@@ -70,18 +70,18 @@ class ValidateProcedure:
             self.expired()
 
     def expired(self):
+        print(f'验证登陆状态（失效）: {self.csdn}')
         self._over()
         self.set_state('done', self.act['message'], 'expired')
         db.user_set_state(self.act['uid'], self.csdn, 'expired')
-        print(f'验证登陆状态（失效）: {self.csdn}')
 
     def fail(self, msg):
+        print(f'验证登陆状态发生错误（{msg}）: {self.csdn}')
         self._over()
         self.set_state('fail', self.act['message'], msg)
-        print(f'验证登陆状态发生错误（{msg}）: {self.csdn}')
 
     def done(self):
+        print(f'验证登陆状态（有效）: {self.csdn}')
         self._over()
         self.set_state('done', self.act['message'], 'on')
         db.user_set_state(self.act['uid'], self.csdn, 'on')
-        print(f'验证登陆状态（有效）: {self.csdn}')

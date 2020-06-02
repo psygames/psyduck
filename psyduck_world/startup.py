@@ -20,7 +20,7 @@ def main():
     if not result:
         print("初始化失败！")
     action_process.startup.run()
-    webserver.startup.run()
+    # webserver.startup.run()
     # downloader.startup.run()
     # uploader.startup.run()
     loop = 0

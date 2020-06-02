@@ -43,6 +43,9 @@ def act_init():
     global act
     act = db['act']
 
+
+def act_test():
+    return
     # test
     if act.find_one({'id': 0}) is None:
         act_create(0, 'admin', 'user', 'login', 'request')

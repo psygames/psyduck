@@ -18,4 +18,6 @@ def main():
 
 
 if __name__ == '__main__':
+    import core.db
+    core.db.init()
     main()
