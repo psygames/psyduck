@@ -9,9 +9,11 @@ def _get(request, key):
 
 
 def index(request):
+    _id = _get(request, 'id')
     action = _get(request, 'action')
     uid = _get(request, 'uid')
     csdn = _get(request, 'csdn')
+    json_result = ''
     if action == 'validate':
-        action_api.validate_csdn(uid, csdn)
-    return HttpResponse("Hello, world. You're at the polls index.")
+        json_result = action_api.validate_csdn(_id, uid, csdn)
+    return HttpResponse(json_result)
