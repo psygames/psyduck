@@ -9,11 +9,23 @@ def _get(request, key):
 
 
 def index(request):
-    _id = _get(request, 'id')
+    token = _get(request, 'token')
     action = _get(request, 'action')
     uid = _get(request, 'uid')
-    csdn = _get(request, 'csdn')
+    message = _get(request, 'message')
     json_result = ''
     if action == 'validate':
-        json_result = action_api.validate_csdn(_id, uid, csdn)
+        json_result = action_api.validate_csdn(token, uid, message)
+    elif action == 'validate_get_state':
+        json_result = action_api.validate_get_state(token, uid, message)
+    elif action == 'login':
+        json_result = action_api.login_get_qr_code(token, uid)
+    elif action == 'login_get_qrcode':
+        json_result = action_api.login_get_qr_code(token, uid)
+    elif action == 'login_get_state':
+        json_result = action_api.login_get_state(token, uid)
+    elif action == 'login_verify_get':
+        json_result = action_api.login_verify_get(token, uid, message)
+    elif action == 'login_verify_set':
+        json_result = action_api.login_verify_set(token, uid, message)
     return HttpResponse(json_result)

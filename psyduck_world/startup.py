@@ -23,6 +23,7 @@ def main():
     # webserver.startup.run()
     # downloader.startup.run()
     # uploader.startup.run()
+    print('启动完成！')
     loop = 0
     while True:
         loop += 1

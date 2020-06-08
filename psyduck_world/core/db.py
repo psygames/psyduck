@@ -44,8 +44,12 @@ def act_init():
     act = db['act']
 
 
+def act_reset():
+    act.update_many({'type': 'user', '$nor': [{'state': 'fail'}, {'state': 'done'}]}
+                    , {'$set': {'state': 'fail', 'message': 'reset'}})
+
+
 def act_test():
-    return
     # test
     if act.find_one({'id': 0}) is None:
         act_create(0, 'admin', 'user', 'login', 'request')

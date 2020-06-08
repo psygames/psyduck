@@ -175,12 +175,10 @@ class Helper:
 
     def dispose(self, rm_option=True):
         if self.driver is not None:
-            time.sleep(1)
+            time.sleep(0.1)
             self.driver.close()
             time.sleep(1)
             self.driver.quit()
-            time.sleep(1)
-            self.driver.stop_client()
             self.driver = None
         if self.is_driver_busy:
             file_helper.unlock_option(self.option_name)

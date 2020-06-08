@@ -8,7 +8,8 @@ def init():
     create_dir()
     initialize.clear.clear_caches()
     core.db.init()
-    core.db.act_test()
+    core.db.act_reset()
+    # core.db.act_test()
     return True
 
 
