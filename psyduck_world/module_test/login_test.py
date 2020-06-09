@@ -57,9 +57,14 @@ if state != 'verify_get':
     print('错误状态')
     exit(0)
 
+# 输入手机号
+print(f'输入手机号 token: {token}')
+phone = input('请输入手机号：')
+print(f'手机号：{phone}')
+
 # 获取手机验证码
 print(f'获取手机验证码 token: {token}')
-req('login_verify_get', token, '18600105483')
+req('login_verify_get', token, phone)
 time.sleep(1)
 
 # 等待验证码获取
