@@ -6,7 +6,7 @@
 
 #### URL
 
-/psyduck/login
+` /psyduck/login `
 
 ##### 请求数据
 
@@ -29,7 +29,7 @@ message | 信息 | 发生错误时的信息 |
 
 #### URL
 
-/psyduck/login_get_state
+` /psyduck/login_get_state ``
 
 ##### 请求数据
 
@@ -52,7 +52,7 @@ result | 结果 | 结果数据，发生错误时的信息 |
 
 #### URL
 
-/psyduck/login_get_qrcode
+` /psyduck/login_get_qrcode `
 
 ##### 请求数据
 
@@ -75,7 +75,7 @@ message | 消息 | 二维码 URL , 发生错误时的信息 |
 
 #### URL
 
-/psyduck/login_verify_get
+` /psyduck/login_verify_get `
 
 ##### 请求数据
 
@@ -99,7 +99,7 @@ message | 信息 | 发生错误时的信息 |
 
 #### URL
 
-/psyduck/login_verify_set
+` /psyduck/login_verify_set `
 
 ##### 请求数据
 
@@ -123,7 +123,7 @@ message | 信息 | 发生错误时的信息 |
 
 #### URL
 
-/psyduck/validate
+` /psyduck/validate `
 
 ##### 请求数据
 
@@ -148,7 +148,7 @@ message | 信息 | 发生错误或其他情况的信息 |
 
 #### URL
 
-/psyduck/validate_get_state
+` /psyduck/validate_get_state `
 
 ##### 请求数据
 
@@ -176,7 +176,7 @@ result | 结果 | 结果数据，发生错误时的信息 |
 
 #### URL
 
-/psyduck
+` /psyduck `
 
 ##### 请求数据
 
