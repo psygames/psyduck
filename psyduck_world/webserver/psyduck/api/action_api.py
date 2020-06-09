@@ -142,3 +142,17 @@ def validate_csdn(token, uid, csdn):
         if act['state'] == 'done':
             return _validate_build('ok', token, uid, csdn, act['result'])
         return _validate_build('error', token, uid, csdn, 'unknown')
+
+
+# list
+def _common_build(status, message):
+    dic = {'status': status, 'message': message}
+    return json.dumps(dic, ensure_ascii=False, indent=4)
+
+
+def user_list(uid):
+    docs = db.user.find({'uid': uid})
+    items = []
+    for doc in docs:
+        items.append({'csdn': doc['csdn'], 'state': doc['state']})
+    return _common_build('ok', items)
