@@ -4,7 +4,7 @@
 
 ###  发起账号登录请求
 
-#### URL
+##### URL
 
 ` /psyduck/login `
 
@@ -27,7 +27,7 @@ message | 信息 | 发生错误时的信息 |
 
 ###  获取登录操作状态
 
-#### URL
+##### URL
 
 ` /psyduck/login_get_state `
 
@@ -50,7 +50,7 @@ result | 结果 | 结果数据，发生错误时的信息 |
 
 ###  获取登录二维码
 
-#### URL
+##### URL
 
 ` /psyduck/login_get_qrcode `
 
@@ -73,7 +73,7 @@ message | 消息 | 二维码 URL , 发生错误时的信息 |
 
 ###  获取短信验证码
 
-#### URL
+##### URL
 
 ` /psyduck/login_verify_get `
 
@@ -97,7 +97,7 @@ message | 信息 | 发生错误时的信息 |
 
 ###  填写手机验证码
 
-#### URL
+##### URL
 
 ` /psyduck/login_verify_set `
 
@@ -121,7 +121,7 @@ message | 信息 | 发生错误时的信息 |
 
 ###  发起验证账号在线状态请求
 
-#### URL
+##### URL
 
 ` /psyduck/validate `
 
@@ -146,7 +146,7 @@ message | 信息 | 发生错误时的信息 |
 
 ###  获取验证账号操作状态
 
-#### URL
+##### URL
 
 ` /psyduck/validate_get_state `
 
@@ -169,7 +169,7 @@ result | 结果 | 结果数据，发生错误时的信息 |
 
 ###  获取已登录的账号列表
 
-#### URL
+##### URL
 
 ` /psyduck/user_list `
 
@@ -194,7 +194,7 @@ message | 账号列表 | 已登录账号列表，发生错误时的信息 |
 
 ###  通用 API
 
-#### URL
+##### URL
 
 ` /psyduck `
 
