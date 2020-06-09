@@ -29,7 +29,7 @@ message | 信息 | 发生错误时的信息 |
 
 #### URL
 
-` /psyduck/login_get_state ``
+` /psyduck/login_get_state `
 
 ##### 请求数据
 
