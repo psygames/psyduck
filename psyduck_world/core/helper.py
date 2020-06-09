@@ -173,12 +173,13 @@ class Helper:
     def set_window_size(self, width, height):
         self.driver.set_window_size(width, height)
 
-    def dispose(self, rm_option=True):
+    def dispose(self, rm_option=True, close_delay=0.1):
         if self.driver is not None:
-            time.sleep(0.1)
+            time.sleep(close_delay)
             self.driver.close()
-            time.sleep(1)
+            time.sleep(close_delay)
             self.driver.quit()
+            time.sleep(close_delay)
             self.driver = None
         if self.is_driver_busy:
             file_helper.unlock_option(self.option_name)

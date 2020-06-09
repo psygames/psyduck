@@ -23,7 +23,10 @@ class LoginProcedure:
         self.over = True
         self.current_func = None
         if self.helper is not None:
-            self.helper.dispose(rm_option)
+            if not rm_option:
+                self.helper.dispose(rm_option, 2)
+            else:
+                self.helper.dispose(rm_option)
 
     def set_state(self, state, message, result):
         db.act_set(self.act['id'], state, message, result)

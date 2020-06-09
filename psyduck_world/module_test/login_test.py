@@ -4,7 +4,7 @@ import time
 
 
 def req(_action, _token, _message=''):
-    _doc = requests.get(f"http://127.0.0.1:8000/psyduck?action={_action}&uid=admin&token={_token}&message={_message}")
+    _doc = requests.get(f"http://127.0.0.1:8000/psyduck/{_action}?uid=admin&token={_token}&message={_message}")
     _json = json.loads(_doc.content)
     return _json
 

@@ -71,7 +71,7 @@ def login_verify_set(request):
 def validate(request):
     token = _get(request, 'token')
     uid = _get(request, 'uid')
-    message = _get(request, 'csdn')
+    message = _get(request, 'message')
     json_result = action_api.validate_csdn(token, uid, message)
     return HttpResponse(json_result)
 
@@ -79,6 +79,6 @@ def validate(request):
 def validate_get_state(request):
     token = _get(request, 'token')
     uid = _get(request, 'uid')
-    message = _get(request, 'csdn')
+    message = _get(request, 'message')
     json_result = action_api.validate_get_state(token, uid, message)
     return HttpResponse(json_result)
