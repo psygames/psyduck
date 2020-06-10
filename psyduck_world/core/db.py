@@ -1,5 +1,5 @@
 import pymongo
-import datetime
+from datetime import datetime
 
 db: pymongo.MongoClient = None
 act: pymongo.collection.Collection = None
@@ -19,23 +19,27 @@ def user_init():
     global user
     user = db['csdn_user']
 
-    # test
-    # user_set('admin', 'y85171642', 'on')
-
 
 def user_set_state(uid, csdn, state):
     if user.find_one({'uid': uid, 'csdn': csdn}) is None:
-        user.insert_one({'uid': uid, 'csdn': csdn, 'state': state})
+        user_create(uid, csdn, state, {}, datetime.now())
     else:
         user.update_one({'uid': uid, 'csdn': csdn}, {'$set': {'state': state}})
 
 
+def user_set_info(uid, csdn, info):
+    if user.find_one({'uid': uid, 'csdn': csdn}) is None:
+        user_create(uid, csdn, 'off', info, datetime.now())
+    else:
+        user.update_one({'uid': uid, 'csdn': csdn}, {'$set': {'info': info, 'update_time': datetime.now()}})
+
+
+def user_create(uid, csdn, state, info, update_time):
+    user.insert_one({'uid': uid, 'csdn': csdn, 'state': state, 'info': info, 'update_time': update_time})
+
+
 def user_get(uid, csdn):
     return user.find_one({'uid': uid, 'csdn': csdn})
-
-
-def user_get_by_state(state):
-    return user.find_one({'state': state})
 
 
 # act
@@ -74,7 +78,7 @@ def act_test():
 
 def act_create(_id, uid, _type, action, state, message='', result=''):
     act.insert_one({'id': _id, 'uid': uid, 'type': _type, 'action': action, 'state': state,
-                    'message': message, 'result': result, 'time': datetime.datetime.now()})
+                    'message': message, 'result': result, 'time': datetime.now()})
 
 
 def act_get(_type, action, state):
@@ -83,4 +87,4 @@ def act_get(_type, action, state):
 
 def act_set(_id, state, message, result):
     act.update_one({'id': _id},
-                   {'$set': {'state': state, 'message': message, 'result': result, 'time': datetime.datetime.now()}})
+                   {'$set': {'state': state, 'message': message, 'result': result, 'time': datetime.now()}})

@@ -1,5 +1,5 @@
 from core import db
-import action_process.login_procedure
+import action_process.login.login_procedure
 
 procedures = []
 
@@ -40,7 +40,7 @@ def login_request():
     if act is None:
         return
     db.act_set(act['id'], 'process', act['message'], act['result'])
-    procedures.append(action_process.login_procedure.LoginProcedure(act))
+    procedures.append(action_process.login.login_procedure.LoginProcedure(act))
 
 
 def login_procedure_update():

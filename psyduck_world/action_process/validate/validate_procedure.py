@@ -2,8 +2,6 @@ import core.helper
 import core.path
 from datetime import datetime
 from core import db
-import os
-import shutil
 from core import file_helper
 
 
