@@ -22,7 +22,7 @@ def user_init():
 
 def user_set_state(uid, csdn, state):
     if user.find_one({'uid': uid, 'csdn': csdn}) is None:
-        user_create(uid, csdn, state, {}, datetime.now())
+        user_create(uid, csdn, state, {}, datetime(1970, 1, 1, 0, 0, 0))
     else:
         user.update_one({'uid': uid, 'csdn': csdn}, {'$set': {'state': state}})
 
@@ -51,29 +51,6 @@ def act_init():
 def act_reset():
     act.update_many({'type': 'user', '$nor': [{'state': 'fail'}, {'state': 'done'}]}
                     , {'$set': {'state': 'fail', 'message': 'reset'}})
-
-
-def act_test():
-    # test
-    if act.find_one({'id': 0}) is None:
-        act_create(0, 'admin', 'user', 'login', 'request')
-    else:
-        act_set(0, 'request', '', '')
-
-    if act.find_one({'id': 1}) is None:
-        act_create(1, 'admin', 'user', 'login_verify_get', 'done', '18600105483')
-    else:
-        act_set(1, 'done', '18600105483', '')
-
-    if act.find_one({'id': 2}) is None:
-        act_create(2, 'admin', 'user', 'login_verify_set', 'done', '000000')
-    else:
-        act_set(2, 'done', '000000', '')
-
-    if act.find_one({'id': 4}) is None:
-        act_create(4, 'admin', 'user', 'validate', 'request', 'y85171642')
-    else:
-        act_set(4, 'request', 'y85171642', '')
 
 
 def act_create(_id, uid, _type, action, state, message='', result=''):

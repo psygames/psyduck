@@ -1,5 +1,6 @@
-import action_process.login.login_process
-import action_process.validate.validate_process
+from action_process.login import login_process
+from action_process.validate import validate_process
+from action_process.update import update_process
 
 
 def init():
@@ -8,10 +9,12 @@ def init():
 
 # api
 def update():
-    action_process.login.login_process.update()
-    action_process.validate.validate_process.update()
+    login_process.update()
+    validate_process.update()
+    update_process.update()
 
 
 def stop():
-    action_process.login.login_process.stop()
-    action_process.validate.validate_process.stop()
+    login_process.stop()
+    validate_process.stop()
+    update_process.stop()

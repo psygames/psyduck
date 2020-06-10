@@ -26,9 +26,11 @@ class UpdateProcedure:
             return
         res = file_helper.copy_option(self.csdn, _des_option)
         if not res:
+            self.fail(f'option error')
             return
         res = self.helper.init(_des_option)
         if not res:
+            self.fail(f'option error')
             return
         self.current_func = self.goto_validate
 
@@ -56,8 +58,8 @@ class UpdateProcedure:
     def check_timeout(self):
         if (datetime.now() - self.act['time']).seconds >= 30:
             print('验证超时')
-            self.set_state('fail', self.act['message'], 'timeout')
             self._over()
+            self.set_state('fail', self.act['message'], 'timeout')
 
     def goto_validate(self):
         print('开始验证登陆状态')
