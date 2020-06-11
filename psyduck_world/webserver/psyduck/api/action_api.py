@@ -1,6 +1,7 @@
 from core import db
 import uuid
 import json
+from datetime import date, datetime
 
 
 # inner
@@ -143,15 +144,72 @@ def validate_csdn(token, uid, csdn):
         return _validate_build('error', token, uid, csdn, 'unknown')
 
 
+# update
+def _update_build(status, token, uid, csdn, message):
+    dic = {'status': status, 'token': token, 'uid': uid, 'csdn': csdn, 'message': message}
+    return json.dumps(dic, ensure_ascii=False, indent=4)
+
+
+def _update_build_state(status, state, result):
+    dic = {'status': status, 'state': state, 'result': result}
+    return json.dumps(dic, ensure_ascii=False, indent=4)
+
+
+def update_get_state(token, uid, csdn):
+    act = db.act.find_one({'id': token, 'uid': uid})
+    if act is None:
+        return _update_build_state('error', 'fail', 'Token不存在')
+    return _update_build_state('ok', act['state'], act['result'])
+
+
+def update_csdn(token, uid, csdn):
+    if token is None or token == '':
+        if db.user_get(uid, csdn) is None:
+            print(f'用户暂未登陆CSDN账号 {uid} -> {csdn}')
+            return _update_build('error', '', uid, csdn, '用户暂未登陆CSDN账号')
+
+        _condition = {'type': 'user', 'action': 'update', 'uid': uid, 'message': csdn,
+                      '$or': [{'state': 'request'}, {'state': 'process'}]}
+        if db.act.find_one(_condition) is not None:
+            print(f'当前账户正在更新信息中，请勿重复提交。{uid} -> {csdn}')
+            return _update_build('error', '', uid, csdn, '当前账户正在更新信息中，请勿重复提交。')
+
+        token = _get_token('validate')
+        db.act_create(token, uid, 'user', 'update', 'request', csdn)
+        return _update_build('ok', token, uid, csdn, '开始更新信息...')
+    else:
+        act = db.act.find_one({'id': token})
+        if act is None:
+            return _update_build('error', token, uid, csdn, '请使用正确Token。')
+        if act['state'] == 'request' or act['state'] == 'process':
+            return _update_build('ok', token, uid, csdn, '正在更新信息中...')
+        if act['state'] == 'fail':
+            return _update_build('error', token, uid, csdn, act['result'])
+        if act['state'] == 'done':
+            return _update_build('ok', token, uid, csdn, act['result'])
+        return _update_build('error', token, uid, csdn, 'unknown')
+
+
 # list
+class MyJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.strftime('%Y-%m-%d %H:%M:%S')
+        elif isinstance(obj, date):
+            return obj.strftime('%Y-%m-%d')
+        else:
+            return json.JSONEncoder.default(self, obj)
+
+
 def _common_build(status, message):
     dic = {'status': status, 'message': message}
-    return json.dumps(dic, ensure_ascii=False, indent=4)
+    return json.dumps(dic, ensure_ascii=False, indent=4, cls=MyJSONEncoder)
 
 
 def user_list(uid):
     docs = db.user.find({'uid': uid})
     items = []
     for doc in docs:
-        items.append({'csdn': doc['csdn'], 'state': doc['state']})
+        doc.pop('_id')
+        items.append(doc)
     return _common_build('ok', items)

@@ -76,6 +76,23 @@ def validate_get_state(request):
     return HttpResponse(json_result)
 
 
+# update
+def update(request):
+    token = _get(request, 'token')
+    uid = _get(request, 'uid')
+    message = _get(request, 'message')
+    json_result = action_api.update_csdn(token, uid, message)
+    return HttpResponse(json_result)
+
+
+def update_get_state(request):
+    token = _get(request, 'token')
+    uid = _get(request, 'uid')
+    message = _get(request, 'message')
+    json_result = action_api.update_get_state(token, uid, message)
+    return HttpResponse(json_result)
+
+
 # list
 def user_list(request):
     uid = _get(request, 'uid')

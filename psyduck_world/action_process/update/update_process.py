@@ -29,7 +29,7 @@ def auto_update():
 
 
 def fake_add_request(uid, csdn):
-    _id = f'auto_update_{uuid.uuid4()}'
+    _id = f'update_{uuid.uuid4()}_auto'
     db.act_create(_id, uid, 'user', 'update', 'request', csdn)
 
 

@@ -46,7 +46,8 @@ class Helper:
         options.add_argument('--disable-gpu')
         options.add_argument("--log-level=3")
         if mobile_mode:
-            options.add_argument("--user-agent=iphone x")
+            mobile_emulation = {"deviceName": "Nexus 7"}
+            options.add_experimental_option("mobileEmulation", mobile_emulation)
 
         prefs = {
             "disable-popup-blocking": False,
@@ -196,6 +197,28 @@ class Helper:
         if self.driver.current_url.find('https://i.csdn.net/#/uc/profile') != -1:
             return True
         return False
+
+    def get_user_info(self):
+        info = {}
+        self.get('https://my.csdn.net/')
+        info['nickname'] = self.find('//h3[@class="person_nick_name"]').text
+        info['point'] = self.find('//div[@class="own_t_l fl"]/label/em').text
+        info['coin'] = self.find('//label[@class="own_t_l_lab"]/em').text
+        info['head'] = self.find('//img[@alt="img"]').get_attribute('src')
+        self.get('https://mp.csdn.net/console/vipService')
+        import datetime
+        vip = {}
+        vip_title = self.find('//h3[@class="server--status-title"]').text
+        if vip_title == '当前 vip 情况':
+            vip['is_vip'] = True
+            vip['count'] = int(self.find('//li[@class="vipserver-count"]/span').text)
+            vip['date'] = datetime.datetime.strptime(self.find('//li[@class="vipserver-time"]').text[8:], '%Y-%m-%d')
+        else:
+            vip['is_vip'] = False
+            vip['count'] = 0
+            vip['date'] = datetime.datetime(1970, 1, 1)
+        info['vip'] = vip
+        return info
 
     def logout(self):
         self.get('https://passport.csdn.net/account/logout')

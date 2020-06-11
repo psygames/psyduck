@@ -11,5 +11,7 @@ urlpatterns = [
     path('login_verify_set', views.login_verify_set),
     path('validate', views.validate),
     path('validate_get_state', views.validate_get_state),
+    path('update', views.update),
+    path('update_get_state', views.update_get_state),
     path('user_list', views.user_list),
 ]
