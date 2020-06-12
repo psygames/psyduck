@@ -4,6 +4,7 @@ from datetime import datetime
 db: pymongo.MongoClient = None
 act: pymongo.collection.Collection = None
 user: pymongo.collection.Collection = None
+download: pymongo.collection.Collection = None
 
 
 def init():
@@ -12,6 +13,7 @@ def init():
     db = client['psyduck']
     act_init()
     user_init()
+    download_init()
 
 
 # user
@@ -65,3 +67,32 @@ def act_get(_type, action, state):
 def act_set(_id, state, message, result):
     act.update_one({'id': _id},
                    {'$set': {'state': state, 'message': message, 'result': result, 'time': datetime.now()}})
+
+
+def download_init():
+    global download
+    download = db['download']
+
+
+def download_create(_id, uid, csdn, url, title, _type, size, tag, description, filename, point, star, upload_time,
+                    qq_group, qq_num, qq_name, share_url, create_time):
+    download.insert_one({'id': _id, 'uid': uid,
+                         'csdn': {'account': csdn, 'url': url, 'title': title, 'type': _type, 'size': size, 'tag': tag,
+                                  'description': description, 'filename': filename, 'point': point, 'star': star,
+                                  'upload_time': upload_time},
+                         'qq': {'qq_group': qq_group, 'qq_num': qq_num, 'qq_name': qq_name},
+                         'share_url': [],
+                         'create_time': create_time})
+
+
+def download_add_share_url(_id, share_url):
+    data = download.find_one({'id': _id})
+    if data is not None and share_url not in data['share_url']:
+        lst = data['share_url']
+        lst.append(share_url)
+        download.update_one({'id': _id}, {'$set': {'share_url': lst}})
+
+
+def download_get(_id):
+    data = download.find_one({'id': _id})
+    return data

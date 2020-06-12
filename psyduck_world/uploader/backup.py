@@ -1,14 +1,16 @@
 from lanzou.api import LanZouCloud
 from lanzou.api.models import ItemList
-from threading import Thread
+from concurrent.futures import ThreadPoolExecutor
 import os
-import time
 import shutil
 
 lzy = LanZouCloud()
 
-dir_queue: ItemList = None
-file_queue: ItemList = None
+dir_queue: ItemList = ItemList()
+file_queue: ItemList = ItemList()
+
+executor = ThreadPoolExecutor(max_workers=5)
+tasks = []
 
 
 def login():
@@ -25,63 +27,111 @@ def all_file_to_queue():
     global dir_queue
     global file_queue
 
+    print('获取文件列表...')
     dirs = lzy.get_dir_list()
-    print(dirs)
     csdn = dirs.find_by_name('CSDN')
+
     csdn_dirs = lzy.get_dir_list(csdn.id)
-    print(csdn_dirs)
     dir_queue = csdn_dirs
-    csdn_files = lzy.get_file_list(csdn.id)
-    print(csdn_files)
-    file_queue = csdn_files
+
+    # csdn_files = lzy.get_file_list(csdn.id)
+    # file_queue = csdn_files
+
+
+def lock(_file):
+    _file = f'{_file}.lock'
+    open(_file, mode='w').close()
+
+
+def unlock(_file):
+    _file = f'{_file}.lock'
+    os.remove(_file)
+
+
+def clear():
+    save_dir = os.path.abspath('./downloads')
+    for f in os.listdir(save_dir):
+        if f.endswith('.lock'):
+            _lock = f'{save_dir}/{f}'
+            _file = f'{_lock[:-5]}'
+            if os.path.exists(_file):
+                os.remove(_file)
+            os.remove(_lock)
+    _temp = f'{save_dir}/_temp'
+    if os.path.exists(_temp):
+        shutil.rmtree(_temp)
 
 
 def download_all():
-    save_dir = os.path.abspath('./downloads');
+    save_dir = os.path.abspath('./downloads')
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
     cur = 1.0
     total = len(file_queue) + len(dir_queue)
-    for p in dir_queue:
-        print(f'进度：{cur}/{total}')
-        download_dir(p)
     for p in file_queue:
         print(f'进度：{cur}/{total}')
-        dowload_file(p, download_dir)
-
-
-def dowload_file(_file, dir):
-    print(f'开始下载：{_file.name}，大小：{_file.size}')
-    lzy.down_file_by_id(_file.id, dir)
-
-
-def download_dir(_file):
-    print(f'开始下载：{_file.name}')
-    sub_files = lzy.get_file_list(_file.id)
-    save_dir = os.path.abspath(f'./downloads/_temp')
-    if not os.path.exists(save_dir):
-        os.mkdir(save_dir)
-    for p in sub_files:
         dowload_file(p, save_dir)
-    bat = f'{save_dir}/combine.bat'
-    with open(f'{bat}', 'r') as f:
-        f.readline()
-        cmd = f.readline()
-    cwd = os.getcwd() + '\n exit 1'
-    os.chdir(save_dir)
-    wnd = os.popen(cmd)
-    os.chdir(cwd)
-    wnd.close()
-    shutil.move(f'{save_dir}/{_file.name}', f'{save_dir}/../{_file.name}')
-    shutil.rmtree(f'{save_dir}')
+        cur += 1
+    for p in dir_queue:
+        print(f'进度：{cur}/{total}')
+        download_dir(p, save_dir)
+        cur += 1
+
+
+def dowload_file(_file, _dir):
+    final_file = os.path.abspath(f'{_dir}/{_file.name}')
+    if os.path.exists(final_file):
+        print(f'已存在：{_file.name}')
+        return
+    lock(final_file)
+    print(f'开始下载：{_file.name}，大小：{_file.size}')
+    lzy.down_file_by_id(_file.id, _dir)
+    unlock(final_file)
+
+
+def download_dir(_file, _dir):
+    final_file = os.path.abspath(f'{_dir}/{_file.name}')
+    if os.path.exists(final_file):
+        print(f'已存在：{_file.name}')
+        return
+    sub_files = lzy.get_file_list(_file.id)
+    if len(sub_files) == 0:
+        print(f'空文件夹：{_file.name}')
+        return
+
+    lock(final_file)
+    print(f'开始下载：{_file.name}')
+    _temp_save_dir = os.path.abspath(f'./downloads/_temp')
+    if not os.path.exists(_temp_save_dir):
+        os.mkdir(_temp_save_dir)
+    for p in sub_files:
+        dowload_file(p, _temp_save_dir)
+
+    merge = open(final_file, mode='wb')
+    for i in range(1, 1000):
+        part = f'{_temp_save_dir}/{_file.name[:-4]}.part{i}.zip'
+        if not os.path.exists(part):
+            break
+        part_file = open(part, mode='rb')
+        merge.write(part_file.read())
+        part_file.close()
+    merge.close()
+    shutil.rmtree(_temp_save_dir)
+    unlock(final_file)
 
 
 def main():
-    if not login():
-        print('登陆错误')
-        return
-    all_file_to_queue()
-    download_all()
+    try:
+        if not login():
+            print('登陆错误')
+            return
+        clear()
+        all_file_to_queue()
+        download_all()
+    except KeyboardInterrupt:
+        pass
+    except:
+        main()
 
 
 if __name__ == '__main__':
