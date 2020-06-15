@@ -6,14 +6,20 @@ act: pymongo.collection.Collection = None
 user: pymongo.collection.Collection = None
 download: pymongo.collection.Collection = None
 
+_is_inited = False
+
 
 def init():
+    global _is_inited
+    if _is_inited:
+        return
     global db
     client = pymongo.MongoClient(host="127.0.0.1", port=27017)
     db = client['psyduck']
     act_init()
     user_init()
     download_init()
+    _is_inited = True
 
 
 # user
@@ -81,16 +87,14 @@ def download_create(_id, uid, csdn, url, title, _type, size, tag, description, f
                                   'description': description, 'filename': filename, 'point': point, 'star': star,
                                   'upload_time': upload_time},
                          'qq': {'qq_group': qq_group, 'qq_num': qq_num, 'qq_name': qq_name},
-                         'share_url': [],
+                         'share_url': share_url,
                          'create_time': create_time})
 
 
-def download_add_share_url(_id, share_url):
+def download_set_share_url(_id, share_url):
     data = download.find_one({'id': _id})
-    if data is not None and share_url not in data['share_url']:
-        lst = data['share_url']
-        lst.append(share_url)
-        download.update_one({'id': _id}, {'$set': {'share_url': lst}})
+    if data is not None:
+        download.update_one({'id': _id}, {'$set': {'share_url': share_url}})
 
 
 def download_get(_id):
