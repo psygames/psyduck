@@ -9,10 +9,10 @@ from core import file_helper
 
 
 class Helper:
-    driver: selenium.webdriver.Chrome = None
+    driver = None
     is_driver_busy = False
     zip_save_path = path.frozen_path('caches/zips')
-    download_path = path.frozen_path('caches/downloads')
+    download_path = path.frozen_path('caches/downloads/')
     drivers_path = path.frozen_path('caches/drivers')
     options_path = path.frozen_path('caches/options')
     option_name = ''
@@ -45,9 +45,10 @@ class Helper:
         options.add_argument('--mute-audio')
         options.add_argument('--disable-gpu')
         options.add_argument("--log-level=3")
-        if mobile_mode:
-            mobile_emulation = {"deviceName": "Nexus 7"}
-            options.add_experimental_option("mobileEmulation", mobile_emulation)
+
+        #if mobile_mode:
+        #    mobile_emulation = {"deviceName": "iPhone 6"}
+        #    options.add_experimental_option("mobileEmulation", mobile_emulation)
 
         prefs = {
             "disable-popup-blocking": False,
@@ -59,8 +60,8 @@ class Helper:
         }
 
         options.add_experimental_option("prefs", prefs)
-        options.add_experimental_option("excludeSwitches", ['enable-automation'])
-        options.add_experimental_option('useAutomationExtension', False)
+        # options.add_experimental_option("excludeSwitches", ['enable-automation'])
+        # options.add_experimental_option('useAutomationExtension', False)
 
         cap = DesiredCapabilities.CHROME
         cap["pageLoadStrategy"] = "none"
@@ -208,7 +209,10 @@ class Helper:
         self.get('https://mp.csdn.net/console/vipService')
         import datetime
         vip = {}
-        vip_title = self.find('//h3[@class="server--status-title"]').text
+        vip_title_tag = self.find('//h3[@class="server--status-title"]')
+        vip_title = ''
+        if vip_title_tag is not None:
+            vip_title = vip_title_tag.text
         if vip_title == '当前 vip 情况':
             vip['is_vip'] = True
             vip['count'] = int(self.find('//li[@class="vipserver-count"]/span').text)
@@ -223,7 +227,7 @@ class Helper:
     def logout(self):
         self.get('https://passport.csdn.net/account/logout')
 
-    def auto_download(self, url):
+    def download(self, url, callback):
         step = 'begin download'
         try:
             step = 'url cut #'
@@ -231,61 +235,69 @@ class Helper:
                 url = url[0:url.index('#')]
 
             step = 'valid url'
+            callback(step)
             if not self.__valid_download_url(url):
                 return self.__download_result(False, "无效的下载地址")
 
-            step = 'check login'
-            if not self.check_login():
-                pass
-
-            step = 'get url'
-            self.get(url)
-
-            step = 'set id'
+            step = 'get id'
+            callback(step)
             _id = url[url.rfind('/') + 1:]
 
+            step = 'goto url'
+            callback(step)
+            self.get(url)
+
             step = 'find btn'
-            btn = self.find('//a[@class="do_download btn-block-link btn-border-red"]')
+            callback(step)
+            btn = self.find('//a[@class="btn-block-link btn-border-red do_download"]')
             if btn is None:
                 return self.__download_result(False, "该资源没有下载通道")
 
             step = 'clear download dir'
+            callback(step)
             self.__clear_download_dir()
 
             step = 'click download button'
+            callback(step)
             btn.click()
 
             step = 'check redirect'
+            callback(step)
             time.sleep(1)
             if self.driver.current_url != url:
                 return self.__download_result(False, 'redirect')
 
             step = 'check block'
+            callback(step)
             time.sleep(0.1)
             block = self.find('//div[@id="st_toastBox"]').get_attribute('style').find('opacity:') != -1
             if block:
                 info = self.find('//span[@id="st_toastContent"]').text
                 return self.__download_result(False, info)
 
-            step = 'wait for download'
-            self.__wait_for_download()
+            step = 'downloading'
+            self.__wait_for_download(step, callback)
 
             step = 'zip file'
+            callback(step)
             self.__zip_file(_id)
 
             step = 'save to db'
+            callback(step)
             self.__save_to_db(_id)
 
             step = 'finish'
+            callback(step)
             return self.__download_result(True, "success")
         except:
             import traceback
             traceback.print_exc()
             return self.__download_result(False, step, True)
 
-    def __valid_download_url(self, url):
-        # 暂时屏蔽验证
-        return True
+    def __valid_download_url(self, url: str):
+        if url.find('download.csdn.net/download/') != -1:
+            return True
+        return False
 
     def __clear_download_dir(self):
         for f in os.listdir(self.download_path):
@@ -299,17 +311,30 @@ class Helper:
             raise Exception('下载目录存在多余文件！')
         return os.path.join(self.download_path, files[0])
 
-    def __wait_for_download(self):
-        time.sleep(2)  # wait for create file
+    def __wait_for_download(self, step, callback):
+        _sleep_step = 0.5
+
+        # wait for create file
+        wait_time = 5
+        while wait_time > 0 and len(os.listdir(self.download_path)) <= 0:
+            callback(step, 0)
+            wait_time -= _sleep_step
+            time.sleep(_sleep_step)
+
+        # wait for download
         wait_time = 20
         last_size = os.path.getsize(self.__get_tmp_download_file())
         while wait_time > 0 and self.__get_tmp_download_file().endswith('.crdownload'):
             cur_size = os.path.getsize(self.__get_tmp_download_file())
+            callback(step, cur_size)
             if cur_size == last_size:
-                wait_time -= 1
+                wait_time -= _sleep_step
             else:
                 wait_time = 20
-            time.sleep(1)
+            time.sleep(_sleep_step)
+
+        cur_size = os.path.getsize(self.__get_tmp_download_file())
+        callback(step, cur_size)
 
         if self.__get_tmp_download_file().endswith('.crdownload'):
             raise Exception('文件下载失败，请重试！')

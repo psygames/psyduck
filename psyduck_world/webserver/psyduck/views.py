@@ -4,10 +4,10 @@ import sys
 import json
 
 
-def _get(request, key):
-    if key in request.GET.keys():
-        return request.GET[key]
-    return ''
+def _get(request, key, default=''):
+    if request.method == 'POST':
+        return request.POST.get(key, default)
+    return request.GET.get(key, default)
 
 
 def index(request):
@@ -25,14 +25,7 @@ def index(request):
 def login(request):
     token = _get(request, 'token')
     uid = _get(request, 'uid')
-    json_result = action_api.login_get_qr_code(token, uid)
-    return HttpResponse(json_result)
-
-
-def login_get_qrcode(request):
-    token = _get(request, 'token')
-    uid = _get(request, 'uid')
-    json_result = action_api.login_get_qr_code(token, uid)
+    json_result = action_api.login(token, uid)
     return HttpResponse(json_result)
 
 
@@ -46,33 +39,16 @@ def login_get_state(request):
 def login_verify_get(request):
     token = _get(request, 'token')
     uid = _get(request, 'uid')
-    message = _get(request, 'message')
-    json_result = action_api.login_verify_get(token, uid, message)
+    phone = _get(request, 'phone')
+    json_result = action_api.login_verify_get(token, uid, phone)
     return HttpResponse(json_result)
 
 
 def login_verify_set(request):
     token = _get(request, 'token')
     uid = _get(request, 'uid')
-    message = _get(request, 'message')
-    json_result = action_api.login_verify_set(token, uid, message)
-    return HttpResponse(json_result)
-
-
-# validate
-def validate(request):
-    token = _get(request, 'token')
-    uid = _get(request, 'uid')
-    message = _get(request, 'message')
-    json_result = action_api.validate_csdn(token, uid, message)
-    return HttpResponse(json_result)
-
-
-def validate_get_state(request):
-    token = _get(request, 'token')
-    uid = _get(request, 'uid')
-    message = _get(request, 'message')
-    json_result = action_api.validate_get_state(token, uid, message)
+    code = _get(request, 'code')
+    json_result = action_api.login_verify_set(token, uid, code)
     return HttpResponse(json_result)
 
 
@@ -80,16 +56,15 @@ def validate_get_state(request):
 def update(request):
     token = _get(request, 'token')
     uid = _get(request, 'uid')
-    message = _get(request, 'message')
-    json_result = action_api.update_csdn(token, uid, message)
+    csdn = _get(request, 'csdn')
+    json_result = action_api.update(token, uid, csdn)
     return HttpResponse(json_result)
 
 
 def update_get_state(request):
     token = _get(request, 'token')
     uid = _get(request, 'uid')
-    message = _get(request, 'message')
-    json_result = action_api.update_get_state(token, uid, message)
+    json_result = action_api.update_get_state(token, uid)
     return HttpResponse(json_result)
 
 
@@ -97,4 +72,21 @@ def update_get_state(request):
 def user_list(request):
     uid = _get(request, 'uid')
     json_result = action_api.user_list(uid)
+    return HttpResponse(json_result)
+
+
+# download
+def download(request):
+    token = _get(request, 'token')
+    uid = _get(request, 'uid')
+    csdn = _get(request, 'csdn')
+    url = _get(request, 'url')
+    json_result = action_api.download(token, uid, csdn, url)
+    return HttpResponse(json_result)
+
+
+def download_get_state(request):
+    token = _get(request, 'token')
+    uid = _get(request, 'uid')
+    json_result = action_api.download_get_state(token, uid)
     return HttpResponse(json_result)

@@ -5,22 +5,24 @@ from core import db
 from core import file_helper
 
 
-class ValidateProcedure:
+class DownloadProcedure:
     act = {}
     over = False
-    csdn = 'null'
+    csdn = ''
+    url = ''
     helper: core.helper.Helper = None
     current_func = None
 
     def __init__(self, act):
         self.act = act
-        self.csdn = act['message']
+        self.url = act['message']['url']
+        self.csdn = act['message']['csdn']
         self.helper = core.helper.Helper()
         self.current_func = self.process_start
 
     def process_start(self):
-        print('验证登陆初始化...')
-        _des_option = f'_tmp_option_validate_{self.csdn}'
+        print('下载初始化...')
+        _des_option = f'_tmp_option_download_{self.csdn}'
         if not file_helper.has_option(self.csdn):
             self.fail(f'option not exist')
             return
@@ -44,8 +46,7 @@ class ValidateProcedure:
             self.helper.dispose()
 
     def set_state(self, state, message, result):
-        if self.act['id'] != 'fake_validate':
-            db.act_set(self.act['id'], state, message, result)
+        db.act_set(self.act['id'], state, message, result)
         self.act['state'] = state
         self.act['message'] = message
         self.act['result'] = result
@@ -56,8 +57,8 @@ class ValidateProcedure:
             self.current_func()
 
     def check_timeout(self):
-        if (datetime.now() - self.act['time']).seconds >= 30:
-            print('验证超时')
+        if (datetime.now() - self.act['time']).seconds >= 3600:
+            print('下载超时')
             self.set_state('fail', self.act['message'], 'timeout')
             self._over()
 
@@ -65,9 +66,17 @@ class ValidateProcedure:
         print('开始验证登陆状态')
         is_login = self.helper.check_login()
         if is_login:
-            self.done()
+            self.goto_download()
         else:
             self.expired()
+
+    def goto_download(self):
+
+        def _download_callback(step, size=None):
+            print(f'{step}: {size}')
+
+        res = self.helper.download(self.url, _download_callback)
+        print(res)
 
     def expired(self):
         print(f'验证登陆状态（失效）: {self.csdn}')
@@ -76,12 +85,12 @@ class ValidateProcedure:
         db.user_set_state(self.act['uid'], self.csdn, 'expired')
 
     def fail(self, msg):
-        print(f'验证登陆状态发生错误（{msg}）: {self.csdn}')
+        print(f'下载发生错误（{msg}）: {self.csdn}')
         self._over()
         self.set_state('fail', self.act['message'], msg)
 
     def done(self):
-        print(f'验证登陆状态（有效）: {self.csdn}')
+        print(f'下载完成: {self.csdn}')
         self._over()
         self.set_state('done', self.act['message'], 'on')
         db.user_set_state(self.act['uid'], self.csdn, 'on')

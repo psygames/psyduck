@@ -10,7 +10,7 @@ procedures = []
 
 # 处理请求
 def process_request():
-    act = db.act_get('user', 'update', 'request')
+    act = db.act_get('update', 'request')
     if act is None:
         return
     db.act_set(act['id'], 'process', act['message'], act['result'])
@@ -30,7 +30,7 @@ def auto_update():
 
 def fake_add_request(uid, csdn):
     _id = f'update_{uuid.uuid4()}_auto'
-    db.act_create(_id, uid, 'user', 'update', 'request', csdn)
+    db.act_create(_id, uid, 'update', 'request', csdn)
 
 
 def procedure_update():

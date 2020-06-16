@@ -25,7 +25,7 @@ def init():
 # user
 def user_init():
     global user
-    user = db['csdn_user']
+    user = db['user']
 
 
 def user_set_state(uid, csdn, state):
@@ -57,17 +57,17 @@ def act_init():
 
 
 def act_reset():
-    act.update_many({'type': 'user', '$nor': [{'state': 'fail'}, {'state': 'done'}]}
+    act.update_many({'$nor': [{'state': 'fail'}, {'state': 'done'}]}
                     , {'$set': {'state': 'fail', 'message': 'reset'}})
 
 
-def act_create(_id, uid, _type, action, state, message='', result=''):
-    act.insert_one({'id': _id, 'uid': uid, 'type': _type, 'action': action, 'state': state,
+def act_create(_id, uid, action, state, message='', result=''):
+    act.insert_one({'id': _id, 'uid': uid, 'action': action, 'state': state,
                     'message': message, 'result': result, 'time': datetime.now()})
 
 
-def act_get(_type, action, state):
-    return act.find_one({'type': _type, 'action': action, 'state': state})
+def act_get(action, state):
+    return act.find_one({'action': action, 'state': state})
 
 
 def act_set(_id, state, message, result):
@@ -75,6 +75,7 @@ def act_set(_id, state, message, result):
                    {'$set': {'state': state, 'message': message, 'result': result, 'time': datetime.now()}})
 
 
+# download
 def download_init():
     global download
     download = db['download']

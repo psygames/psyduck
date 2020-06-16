@@ -6,7 +6,7 @@ procedures = []
 
 # login
 def login_verify_get():
-    act = db.act_get('user', 'login_verify_get', 'request')
+    act = db.act_get('login_verify_get', 'request')
     if act is None:
         return
     solved = False
@@ -21,7 +21,7 @@ def login_verify_get():
 
 
 def login_verify_set():
-    act = db.act_get('user', 'login_verify_set', 'request')
+    act = db.act_get('login_verify_set', 'request')
     if act is None:
         return
     solved = False
@@ -36,7 +36,7 @@ def login_verify_set():
 
 
 def login_request():
-    act = db.act_get('user', 'login', 'request')
+    act = db.act_get('login', 'request')
     if act is None:
         return
     db.act_set(act['id'], 'process', act['message'], act['result'])

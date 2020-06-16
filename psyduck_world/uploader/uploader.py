@@ -18,7 +18,7 @@ class Uploader:
     name = ''
     file_list: ItemList = ItemList()
     dir_list: ItemList = ItemList()
-    file_dir = os.path.abspath(path.frozen_path('caches/downloads'))
+    upload_dir = os.path.abspath(path.frozen_path('caches/downloads'))
     cookies = {}
     upload_folder_id = -1
     max_thread_count = 5
@@ -29,13 +29,14 @@ class Uploader:
     upload_total = 0
     temp_copy_dir = ''
     need_catch_all = True
+    need_cloud_clear = True
 
     def __init__(self, setting):
         self.name = setting['name']
         self.cookies = setting['cookies']
         self.set_share_url = setting['set_share_url']
         self.update_share_url = setting['update_share_url']
-        self.temp_copy_dir = os.path.join(self.file_dir, f'__{self.name}__')
+        self.temp_copy_dir = os.path.join(self.upload_dir, f'__{self.name}__')
 
     def start(self):
         while 1:
@@ -44,6 +45,7 @@ class Uploader:
                     self.log('初始化失败！')
                 else:
                     self.catch_all()
+                    self.cloud_clear()
                     self.upload_all()
             except:
                 import traceback
@@ -64,6 +66,30 @@ class Uploader:
         if os.path.exists(self.temp_copy_dir):
             shutil.rmtree(self.temp_copy_dir)
 
+    def cloud_clear(self):
+        if not self.need_cloud_clear:
+            return
+        self.log('整理云文件...')
+        for d in self.file_list:
+            for dd in self.file_list:
+                if d != dd and d.name == dd.name:
+                    self.log(f'删除重复文件：{dd.name}')
+                    self.lzy.delete(dd.id, True)
+                    self.file_list.pop_by_id(dd.id)
+
+        for d in self.dir_list:
+            for dd in self.dir_list:
+                if d != dd and d.name == dd.name:
+                    self.log(f'删除重复文件夹：{dd.name}')
+                    self.lzy.delete(dd.id, False)
+                    self.dir_list.pop_by_id(dd.id)
+
+        self.log('云文件整理完毕')
+        self.log(f'文件数量：{len(self.file_list)}')
+        self.log(f'文件夹数量：{len(self.dir_list)}')
+        self.log(f'总数量：{len(self.file_list) + len(self.dir_list)}')
+        self.need_cloud_clear = False
+
     def login(self):
         self.log('登陆账号...')
         code = self.lzy.login_by_cookie(self.cookies)
@@ -83,19 +109,22 @@ class Uploader:
         self.upload_folder_id = dirs.find_by_name('psyduck').id
         self.file_list = self.lzy.get_file_list(self.upload_folder_id)
         self.dir_list = self.lzy.get_dir_list(self.upload_folder_id)
+        self.log(f'文件数量：{len(self.file_list)}')
+        self.log(f'文件夹数量：{len(self.dir_list)}')
+        self.log(f'总数量：{len(self.file_list) + len(self.dir_list)}')
 
     def upload_all(self):
         self.log('开始上传...')
         self.need_catch_all = False
         self.upload_index = 0
-        self.upload_total = len(os.listdir(self.file_dir))
-        for fi in os.listdir(self.file_dir):
+        self.upload_total = len(os.listdir(self.upload_dir))
+        for fi in os.listdir(self.upload_dir):
             if not fi.endswith('.zip'):
                 continue
             _id = fi[:-4]
             data = db.download_get(_id)
             # self.log(f'进度：{cur}/{total}')
-            self.upload_file(os.path.join(self.file_dir, fi), data)
+            self.upload_file(os.path.join(self.upload_dir, fi), data)
             self.upload_index += 1
         self.log('全部上传完成！')
 
@@ -203,7 +232,7 @@ def main():
             }
         },
     ]
-    u_index = 0
+    u_index = 1
     u = None
     try:
         u = Uploader(settings[u_index])

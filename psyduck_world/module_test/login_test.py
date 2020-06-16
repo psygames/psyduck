@@ -1,16 +1,9 @@
-import requests
-import json
 import time
-
-
-def req(_action, _token, _message=''):
-    _doc = requests.get(f"http://127.0.0.1:8000/psyduck/{_action}?uid=admin&token={_token}&message={_message}")
-    _json = json.loads(_doc.content)
-    return _json
+from module_test import req
 
 
 def get_state(_token):
-    _doc = req('login_get_state', _token)
+    _doc = req.req_simple('login_get_state', _token)
     return _doc['state']
 
 
@@ -19,7 +12,7 @@ token = ''
 
 # 创建请求
 print(f'创建登陆请求 token: {token}')
-doc = req('login', token)
+doc = req.req_simple('login', token)
 token = doc['token']
 
 if doc['status'] == 'error':
@@ -37,7 +30,7 @@ while state != 'scan':
 
 # 取得二维码
 print(f'取得二维码 token: {token}')
-doc = req('login_get_qrcode', token)
+doc = req.req_simple('login_get_qrcode', token)
 print(doc['message'])
 
 # 等待用户扫码
@@ -64,7 +57,7 @@ print(f'手机号：{phone}')
 
 # 获取手机验证码
 print(f'获取手机验证码 token: {token}')
-req('login_verify_get', token, phone)
+req.req_simple('login_verify_get', token, {'phone': phone})
 time.sleep(1)
 
 # 等待验证码获取
@@ -85,7 +78,7 @@ print(f'验证码：{code}')
 
 # 设置验证码
 print(f'设置验证码 token: {token}')
-req('login_verify_set', token, code)
+req.req_simple('login_verify_set', token, {'code': code})
 
 # 等待完成登陆
 print(f'等待完成登陆 token: {token}')

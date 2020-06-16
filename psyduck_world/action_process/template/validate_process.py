@@ -1,5 +1,5 @@
 import core.db
-from action_process.validate import validate_procedure
+from action_process.template import validate_procedure
 import datetime
 
 procedures = []
@@ -7,7 +7,7 @@ _last_check_time = datetime.datetime.now()
 
 
 def process_request():
-    act = core.db.act_get('user', 'validate', 'request')
+    act = core.db.act_get('validate', 'request')
     if act is None:
         return
     core.db.act_set(act['id'], 'process', act['message'], act['result'])
