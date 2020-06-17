@@ -12,7 +12,7 @@ class Helper:
     driver = None
     is_driver_busy = False
     zip_save_path = path.frozen_path('caches/zips')
-    download_path = path.frozen_path('caches/downloads/')
+    download_path = path.frozen_path('caches/downloads')
     drivers_path = path.frozen_path('caches/drivers')
     options_path = path.frozen_path('caches/options')
     option_name = ''
@@ -35,7 +35,9 @@ class Helper:
         self.option_name = _option_name
         self.tmp_option_path = os.path.join(self.options_path, _option_name)
         _driver_path = os.path.join(self.tmp_driver_dir, 'chromedriver')
+        self.download_path = self.download_path.replace('\\', '/')
         if platform.system() == 'Windows':
+            self.download_path = self.download_path.replace('/', '\\')
             _driver_path += ".exe"
         if not os.path.exists(_driver_path):
             raise Exception('chromedriver not exist at {}'.format(_driver_path))
@@ -45,10 +47,9 @@ class Helper:
         options.add_argument('--mute-audio')
         options.add_argument('--disable-gpu')
         options.add_argument("--log-level=3")
-
-        #if mobile_mode:
-        #    mobile_emulation = {"deviceName": "iPhone 6"}
-        #    options.add_experimental_option("mobileEmulation", mobile_emulation)
+        if mobile_mode:
+            mobile_emulation = {"deviceName": "Nexus 7"}
+            options.add_experimental_option("mobileEmulation", mobile_emulation)
 
         prefs = {
             "disable-popup-blocking": False,
@@ -60,8 +61,8 @@ class Helper:
         }
 
         options.add_experimental_option("prefs", prefs)
-        # options.add_experimental_option("excludeSwitches", ['enable-automation'])
-        # options.add_experimental_option('useAutomationExtension', False)
+        options.add_experimental_option("excludeSwitches", ['enable-automation'])
+        options.add_experimental_option('useAutomationExtension', False)
 
         cap = DesiredCapabilities.CHROME
         cap["pageLoadStrategy"] = "none"
@@ -275,8 +276,24 @@ class Helper:
                 info = self.find('//span[@id="st_toastContent"]').text
                 return self.__download_result(False, info)
 
+            step = 'get size'
+            callback(step)
+            size_str = self.find('//div[@class="resource_msg"]/span[3]')
+            if size_str is None:
+                return self.__download_result(False, 'get size')
+            size_str = size_str.text
+            _size = 0
+            if size_str.endswith('KB'):
+                _size = float(size_str[:-2]) * 1024
+            elif size_str.endswith('MB'):
+                _size = float(size_str[:-2]) * 1024 * 1024
+            elif size_str.endswith('GB'):
+                _size = float(size_str[:-2]) * 1024 * 1024 * 1024
+            elif size_str.endswith('B'):
+                _size = float(size_str[:-1])
+
             step = 'downloading'
-            self.__wait_for_download(step, callback)
+            self.__wait_for_download(step, int(_size), callback)
 
             step = 'zip file'
             callback(step)
@@ -288,7 +305,7 @@ class Helper:
 
             step = 'finish'
             callback(step)
-            return self.__download_result(True, "success")
+            return self.__download_result(True, _id)
         except:
             import traceback
             traceback.print_exc()
@@ -311,13 +328,13 @@ class Helper:
             raise Exception('下载目录存在多余文件！')
         return os.path.join(self.download_path, files[0])
 
-    def __wait_for_download(self, step, callback):
+    def __wait_for_download(self, step, total_size, callback):
         _sleep_step = 0.5
 
         # wait for create file
         wait_time = 5
         while wait_time > 0 and len(os.listdir(self.download_path)) <= 0:
-            callback(step, 0)
+            callback(step, 0, total_size)
             wait_time -= _sleep_step
             time.sleep(_sleep_step)
 
@@ -326,7 +343,7 @@ class Helper:
         last_size = os.path.getsize(self.__get_tmp_download_file())
         while wait_time > 0 and self.__get_tmp_download_file().endswith('.crdownload'):
             cur_size = os.path.getsize(self.__get_tmp_download_file())
-            callback(step, cur_size)
+            callback(step, cur_size, total_size)
             if cur_size == last_size:
                 wait_time -= _sleep_step
             else:
@@ -334,7 +351,7 @@ class Helper:
             time.sleep(_sleep_step)
 
         cur_size = os.path.getsize(self.__get_tmp_download_file())
-        callback(step, cur_size)
+        callback(step, cur_size, cur_size)
 
         if self.__get_tmp_download_file().endswith('.crdownload'):
             raise Exception('文件下载失败，请重试！')
@@ -352,5 +369,5 @@ class Helper:
     def __save_to_db(self, _id):
         pass
 
-    def __download_result(self, success, message='', exception=False):
-        return {'success': success, 'message': message, "exception": exception}
+    def __download_result(self, success, message, is_exception=False):
+        return {'success': success, 'message': message, "is_exception": is_exception}

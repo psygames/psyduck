@@ -3,6 +3,7 @@ import core.path
 from datetime import datetime
 from core import db
 from core import file_helper
+from uploader import upload
 
 
 class DownloadProcedure:
@@ -34,7 +35,7 @@ class DownloadProcedure:
         if not res:
             self.fail(f'option error')
             return
-        self.current_func = self.goto_validate
+        self.goto_validate()
 
     def stop(self):
         self._over()
@@ -45,22 +46,13 @@ class DownloadProcedure:
         if self.helper is not None:
             self.helper.dispose()
 
-    def set_state(self, state, message, result):
-        db.act_set(self.act['id'], state, message, result)
+    def set_state(self, state, result):
+        db.act_set(self.act['id'], state, self.act['message'], result)
         self.act['state'] = state
-        self.act['message'] = message
         self.act['result'] = result
 
     def update(self):
-        self.check_timeout()
-        if self.current_func is not None:
-            self.current_func()
-
-    def check_timeout(self):
-        if (datetime.now() - self.act['time']).seconds >= 3600:
-            print('下载超时')
-            self.set_state('fail', self.act['message'], 'timeout')
-            self._over()
+        pass
 
     def goto_validate(self):
         print('开始验证登陆状态')
@@ -68,29 +60,35 @@ class DownloadProcedure:
         if is_login:
             self.goto_download()
         else:
-            self.expired()
+            self.fail('账户过期')
 
     def goto_download(self):
 
-        def _download_callback(step, size=None):
-            print(f'{step}: {size}')
+        def _download_callback(step, now_size=None, total_size=None):
+            if step == 'downloading':
+                p = {'now_size': now_size, 'total_size': total_size}
+                self.set_state('download', p)
+                print(p)
+            else:
+                self.set_state('download', step)
 
         res = self.helper.download(self.url, _download_callback)
-        print(res)
+        if res['success']:
+            self.goto_upload()
+        else:
+            self.fail(res['message'])
 
-    def expired(self):
-        print(f'验证登陆状态（失效）: {self.csdn}')
-        self._over()
-        self.set_state('done', self.act['message'], 'expired')
-        db.user_set_state(self.act['uid'], self.csdn, 'expired')
+    def goto_upload(self):
+        self.set_state('upload', '')
+        upload.upload()
+        pass
 
     def fail(self, msg):
         print(f'下载发生错误（{msg}）: {self.csdn}')
         self._over()
-        self.set_state('fail', self.act['message'], msg)
+        self.set_state('fail', msg)
 
-    def done(self):
+    def done(self, url):
         print(f'下载完成: {self.csdn}')
         self._over()
-        self.set_state('done', self.act['message'], 'on')
-        db.user_set_state(self.act['uid'], self.csdn, 'on')
+        self.set_state('done', url)

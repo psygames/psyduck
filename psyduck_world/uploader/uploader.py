@@ -18,7 +18,7 @@ class Uploader:
     name = ''
     file_list: ItemList = ItemList()
     dir_list: ItemList = ItemList()
-    upload_dir = os.path.abspath(path.frozen_path('caches/downloads'))
+    upload_dir = os.path.abspath(path.frozen_path('caches/zips'))
     cookies = {}
     upload_folder_id = -1
     max_thread_count = 5
@@ -27,7 +27,6 @@ class Uploader:
     upload_use_copy = True
     upload_index = 0
     upload_total = 0
-    temp_copy_dir = ''
     need_catch_all = True
     need_cloud_clear = True
 
@@ -36,7 +35,6 @@ class Uploader:
         self.cookies = setting['cookies']
         self.set_share_url = setting['set_share_url']
         self.update_share_url = setting['update_share_url']
-        self.temp_copy_dir = os.path.join(self.upload_dir, f'__{self.name}__')
 
     def start(self):
         while 1:
@@ -63,8 +61,6 @@ class Uploader:
 
     def clear(self):
         self.log('清除临时文件...')
-        if os.path.exists(self.temp_copy_dir):
-            shutil.rmtree(self.temp_copy_dir)
 
     def cloud_clear(self):
         if not self.need_cloud_clear:
@@ -121,10 +117,9 @@ class Uploader:
         for fi in os.listdir(self.upload_dir):
             if not fi.endswith('.zip'):
                 continue
-            _id = fi[:-4]
-            data = db.download_get(_id)
             # self.log(f'进度：{cur}/{total}')
-            self.upload_file(os.path.join(self.upload_dir, fi), data)
+            _file_path = os.path.join(self.upload_dir, fi)
+            self.upload_file(_file_path)
             self.upload_index += 1
         self.log('全部上传完成！')
 
@@ -138,7 +133,13 @@ class Uploader:
         self.log(f'更新分享链接({self.upload_index}/{self.upload_total})：{_id} {info.url}')
         db.download_set_share_url(_id, info.url)
 
-    def upload_file(self, file_path, data):
+    def upload_file(self, file_path, uploading_callback=None, uploaded_callback=None):
+
+        # id
+        file_name = os.path.basename(file_path)
+        _id = file_name[:-4]
+        data = db.download_get(_id)
+
         # 数据校验
         if data is None:
             self.log(f'数据库中未找到文件：{os.path.basename(file_path)}')
@@ -168,44 +169,42 @@ class Uploader:
                 self.log(f'已损坏的大文件：{_id}')
 
         # 文件拷贝
-        if not os.path.exists(self.temp_copy_dir):
-            os.mkdir(self.temp_copy_dir)
-        _copy_path = os.path.join(self.temp_copy_dir, os.path.basename(file_path))
+        temp_copy_dir = os.path.join(os.path.dirname(file_path), f'_temp_{_id}')
+        if not os.path.exists(temp_copy_dir):
+            os.mkdir(temp_copy_dir)
+        _copy_path = os.path.join(temp_copy_dir, os.path.basename(file_path))
         shutil.copy(file_path, _copy_path)
+
+        def _uploading_callback(_f_name, total_size, now_size):
+            # self.log(f'{_f_name}：上传中[{now_size}/{total_size}]...')
+            if uploading_callback is not None:
+                uploading_callback(now_size, total_size)
+
+        def _uploaded_callback(fid, is_file):
+            self.save_share_url(_id, fid, is_file)
+            self.lzy.set_passwd(fid, '', is_file)
+            desc = f'{data["csdn"]["title"]}\n{data["csdn"]["description"]}'
+            self.lzy.set_desc(fid, desc, is_file)
 
         # 文件上传
         self.log(f'开始上传({self.upload_index}/{self.upload_total})：{data["id"]} {data["csdn"]["size"]}')
-        code = self.lzy.upload_file(_copy_path, self.upload_folder_id, callback=self.uploading_callback,
-                                    uploaded_handler=self.uploaded_callback)
+        code = self.lzy.upload_file(_copy_path, self.upload_folder_id, callback=_uploading_callback,
+                                    uploaded_handler=_uploaded_callback)
 
         if code != LanZouCloud.SUCCESS:
             self.log(f'上传失败({code})：{_id}')
+            uploaded_callback(False)
         else:
             self.log(f'上传完成：{_id}')
+            uploaded_callback(True)
 
         # 文件清理
-        if os.path.exists(_copy_path):
-            self.log(f'清理临时文件：{os.path.basename(_copy_path)}')
-            os.remove(_copy_path)
+        if os.path.exists(temp_copy_dir):
+            self.log(f'清理临时文件夹：{os.path.basename(temp_copy_dir)}')
+            shutil.rmtree(temp_copy_dir)
 
         # catch all
         self.need_catch_all = True
-
-    def uploading_callback(self, file_name, total_size, now_size):
-        # self.log(f'{file_name}：上传中[{now_size}/{total_size}]...')
-        pass
-
-    def uploaded_callback(self, fid, is_file):
-        _id = ''
-        if is_file:
-            _id = self.lzy.get_file_info_by_id(fid).name[:-4]
-        else:
-            _id = self.lzy.get_folder_info_by_id(fid).folder.name[:-4]
-        data = db.download_get(_id)
-        self.save_share_url(_id, fid, is_file)
-        self.lzy.set_passwd(fid, '', is_file)
-        desc = f'{data["csdn"]["title"]}\n{data["csdn"]["description"]}'
-        self.lzy.set_desc(fid, desc, is_file)
 
     def dispose(self):
         pass
