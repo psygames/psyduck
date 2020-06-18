@@ -1,7 +1,6 @@
 import sys
 import json
 from datetime import datetime
-from datetime import date
 
 sys.path.append('../')
 

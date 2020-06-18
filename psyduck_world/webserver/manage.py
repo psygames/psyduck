@@ -3,6 +3,8 @@
 import os
 import sys
 
+sys.path.append(os.path.abspath(os.getcwd()))
+
 
 def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'webserver.settings')
@@ -19,5 +21,6 @@ def main():
 
 if __name__ == '__main__':
     import core.db
+
     core.db.init()
     main()
