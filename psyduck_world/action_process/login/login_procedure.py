@@ -28,10 +28,9 @@ class LoginProcedure:
             else:
                 self.helper.dispose(rm_option)
 
-    def set_state(self, state, message, result):
-        db.act_set(self.act['id'], state, message, result)
+    def set_state(self, state, result):
+        db.act_set_state(self.act['id'], state, result)
         self.act['state'] = state
-        self.act['message'] = message
         self.act['result'] = result
 
     def update(self):
@@ -41,7 +40,7 @@ class LoginProcedure:
 
     def check_timeout(self):
         if (datetime.now() - self.act['time']).seconds >= 300:
-            self.set_state('fail', self.act['message'], 'timeout')
+            self.set_state('fail', 'timeout')
             self._over()
             print('登录超时')
 
@@ -56,11 +55,11 @@ class LoginProcedure:
         print('获取二维码')
         qr = self.helper.get_scan_qr()
         if qr is None or qr == '':
-            self.set_state('fail', self.act['message'], 'get qrcode fail')
+            self.set_state('fail', 'get qrcode fail')
             self._over()
             print('获取登陆二维码失败')
             return
-        self.set_state('scan', self.act['message'], qr)
+        self.set_state('scan', qr)
         print('等待扫码')
         self.current_func = self.wait_scan
 
@@ -71,7 +70,7 @@ class LoginProcedure:
 
     def scan_next(self):
         if self.helper.is_login_wait_for_verify():
-            self.set_state('verify_get', self.act['message'], self.act['result'])
+            self.set_state('verify_get', self.act['result'])
             self.current_func = self.wait_verify
             print('等待验证')
         elif self.helper.is_login_success():
@@ -87,7 +86,7 @@ class LoginProcedure:
         if not self.helper.is_login_wait_for_verify():
             return
         self.helper.get_verify_code(phone)
-        self.set_state('verify_set', self.act['message'], self.act['result'])
+        self.set_state('verify_set', self.act['result'])
 
     def set_verify_code(self, code):
         if not self.helper.is_login_wait_for_verify():
@@ -101,12 +100,12 @@ class LoginProcedure:
     def done(self):
         csdn = self.helper.get_username()
         if csdn is None or csdn == '':
-            self.set_state('fail', self.act['message'], 'timeout')
+            self.set_state('fail', 'timeout')
             self._over()
             print('获取 CSDN 用户信息失败: ' + self.act['uid'])
             return
         self._over(False)
         file_helper.move_option(self.helper.option_name, csdn)
         print('登录完成: ' + csdn)
-        self.set_state('done', self.act['message'], self.act['result'])
+        self.set_state('done', self.act['result'])
         db.user_set_state(self.act['uid'], csdn, 'on')

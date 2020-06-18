@@ -8,7 +8,7 @@ def process_request():
     act = core.db.act_get('download', 'request')
     if act is None:
         return
-    core.db.act_set(act['id'], 'process', act['message'], act['result'])
+    core.db.act_set_state(act['id'], 'process', act['result'])
     procedures.append(download_procedure.DownloadProcedure(act))
 
 

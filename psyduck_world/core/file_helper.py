@@ -29,7 +29,7 @@ def is_lock_option(name):
 
 
 def wait_check_lock(name):
-    timeout = 60
+    timeout = 3
     while timeout > 0:
         if not is_lock_option(name):
             return False
@@ -60,7 +60,7 @@ def move_option(src_name, des_name):
 def copy_option(src_name, des_name):
     if wait_check_lock(src_name):
         return False
-    if wait_check_lock(src_name):
+    if wait_check_lock(des_name):
         return False
 
     lock_option(src_name)

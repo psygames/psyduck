@@ -1,6 +1,5 @@
 from initialize import initialize
 import action_process.startup
-import downloader.startup
 import uploader.startup
 import time
 import webserver.startup
@@ -21,7 +20,6 @@ def main():
         print("初始化失败！")
     action_process.startup.run()
     webserver.startup.run()
-    # downloader.startup.run()
     # uploader.startup.run()
     print('启动完成！')
     loop = 0

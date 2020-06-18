@@ -58,7 +58,7 @@ def act_init():
 
 def act_reset():
     act.update_many({'$nor': [{'state': 'fail'}, {'state': 'done'}]}
-                    , {'$set': {'state': 'fail', 'message': 'reset'}})
+                    , {'$set': {'state': 'fail', 'result': 'reset'}})
 
 
 def act_create(_id, uid, action, state, message='', result=''):
@@ -70,9 +70,9 @@ def act_get(action, state):
     return act.find_one({'action': action, 'state': state})
 
 
-def act_set(_id, state, message, result):
+def act_set_state(_id, state, result):
     act.update_one({'id': _id},
-                   {'$set': {'state': state, 'message': message, 'result': result, 'time': datetime.now()}})
+                   {'$set': {'state': state, 'result': result, 'time': datetime.now()}})
 
 
 # download
@@ -81,13 +81,23 @@ def download_init():
     download = db['download']
 
 
-def download_create(_id, uid, csdn, url, title, _type, size, tag, description, filename, point, star, upload_time,
-                    qq_group, qq_num, qq_name, share_url, create_time):
-    download.insert_one({'id': _id, 'uid': uid,
-                         'csdn': {'account': csdn, 'url': url, 'title': title, 'type': _type, 'size': size, 'tag': tag,
+def download_create_qq(_id, uid, csdn, url, title, _type, size, description, filename, point, star, upload_time,
+                       uploader, qq_group, qq_num, qq_name, share_url, create_time):
+    download.insert_one({'id': _id, 'uid': uid, 'csdn': csdn,
+                         'info': {'url': url, 'title': title, 'type': _type, 'size': size,
                                   'description': description, 'filename': filename, 'point': point, 'star': star,
-                                  'upload_time': upload_time},
+                                  'uploader': uploader, 'upload_time': upload_time, },
                          'qq': {'qq_group': qq_group, 'qq_num': qq_num, 'qq_name': qq_name},
+                         'share_url': share_url,
+                         'create_time': create_time})
+
+
+def download_create(_id, uid, csdn, url, title, _type, size, description, filename, point, star, upload_time,
+                    uploader, share_url, create_time):
+    download.insert_one({'id': _id, 'uid': uid, 'csdn': csdn,
+                         'info': {'url': url, 'title': title, 'type': _type, 'size': size,
+                                  'description': description, 'filename': filename, 'point': point, 'star': star,
+                                  'uploader': uploader, 'upload_time': upload_time, },
                          'share_url': share_url,
                          'create_time': create_time})
 

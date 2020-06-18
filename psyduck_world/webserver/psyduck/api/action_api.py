@@ -67,7 +67,7 @@ def _token_build(token):
 def _state_build(act):
     if act is None:
         return _error_token_not_exist()
-    return _common_build(state=act['state'], result=act['result'])
+    return _common_build('ok', state=act['state'], result=act['result'])
 
 
 # login
@@ -132,7 +132,7 @@ def download(token, uid, csdn, url):
             print(f'用户暂未登陆CSDN账号 {uid} -> {csdn}')
             return _error_csdn_not_login()
 
-        _condition = {'action': 'download', 'uid': uid, 'message': {'url': url},
+        _condition = {'action': 'download', 'uid': uid, 'message.url': url,
                       '$nor': [{'state': 'fail'}, {'state': 'done'}]}
         if db.act.find_one(_condition) is not None:
             print(f'当前资源正在下载中，请勿重复提交。{uid} -> {csdn} {url}')

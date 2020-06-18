@@ -6,6 +6,7 @@ from core import path
 import shutil
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from core import file_helper
+from datetime import datetime
 
 
 class Helper:
@@ -35,6 +36,7 @@ class Helper:
         self.option_name = _option_name
         self.tmp_option_path = os.path.join(self.options_path, _option_name)
         _driver_path = os.path.join(self.tmp_driver_dir, 'chromedriver')
+        self.download_path = os.path.join(self.download_path, datetime.now().strftime('%Y%m%d%H%M%S%f'))
         self.download_path = self.download_path.replace('\\', '/')
         if platform.system() == 'Windows':
             self.download_path = self.download_path.replace('/', '\\')
@@ -228,6 +230,25 @@ class Helper:
     def logout(self):
         self.get('https://passport.csdn.net/account/logout')
 
+    def get_download_info(self, url):
+        if self.driver.current_url != url:
+            self.get(url)
+        title = self.find('//div[@class="resource_title"]').text
+        desc = self.find('//div[@class="resource_description"]/p').text
+        stars = 0
+        for i in range(1, 6):
+            if self.find(f'//span[@class="starts"]/i[{i}]').get_attribute('class') == 'fa fa-star':
+                stars = i - 1
+                break
+        point = self.find('//div[@class="resource_msg"]/span[1]').text.strip()
+        _type = self.find('//div[@class="resource_msg"]/span[2]').text.strip()
+        size = self.find('//div[@class="resource_msg"]/span[3]').text.strip()
+        _str_time = self.find('//div[@class="resource_msg"]/span[4]').text.strip()
+        upload_time = datetime.strptime(_str_time, '%Y-%m-%d')
+        uploader = self.find('//div[@class="user_name"]/a').text
+        return {'url': url, 'title': title, 'description': desc, 'type': _type, 'size': size, 'star': stars,
+                'point': point, 'upload_time': upload_time, 'uploader': uploader}
+
     def download(self, url, callback):
         step = 'begin download'
         try:
@@ -253,6 +274,11 @@ class Helper:
             btn = self.find('//a[@class="btn-block-link btn-border-red do_download"]')
             if btn is None:
                 return self.__download_result(False, "该资源没有下载通道")
+
+            step = 'get info'
+            callback(step)
+            info = self.get_download_info(url)
+            info['id'] = _id
 
             step = 'clear download dir'
             callback(step)
@@ -299,13 +325,17 @@ class Helper:
             callback(step)
             self.__zip_file(_id)
 
-            step = 'save to db'
+            step = 'extend info'
             callback(step)
-            self.__save_to_db(_id)
+            info['filename'] = os.path.basename(self.__get_tmp_download_file())
+
+            step = 'remove download dir'
+            callback(step)
+            self.__remove_download_dir()
 
             step = 'finish'
             callback(step)
-            return self.__download_result(True, _id)
+            return self.__download_result(True, info)
         except:
             import traceback
             traceback.print_exc()
@@ -316,9 +346,14 @@ class Helper:
             return True
         return False
 
+    def __remove_download_dir(self):
+        if not os.path.exists(self.download_path):
+            return
+        shutil.rmtree(self.download_path)
+
     def __clear_download_dir(self):
-        for f in os.listdir(self.download_path):
-            os.remove(os.path.join(self.download_path, f))
+        self.__remove_download_dir()
+        os.mkdir(self.download_path)
 
     def __get_tmp_download_file(self):
         files = os.listdir(self.download_path)
@@ -341,7 +376,7 @@ class Helper:
         # wait for download
         wait_time = 20
         last_size = os.path.getsize(self.__get_tmp_download_file())
-        while wait_time > 0 and self.__get_tmp_download_file().endswith('.crdownload'):
+        while wait_time > 0 and self.__is_downloading():
             cur_size = os.path.getsize(self.__get_tmp_download_file())
             callback(step, cur_size, total_size)
             if cur_size == last_size:
@@ -353,8 +388,12 @@ class Helper:
         cur_size = os.path.getsize(self.__get_tmp_download_file())
         callback(step, cur_size, cur_size)
 
-        if self.__get_tmp_download_file().endswith('.crdownload'):
+        if self.__is_downloading():
             raise Exception('文件下载失败，请重试！')
+
+    def __is_downloading(self):
+        fi = self.__get_tmp_download_file()
+        return fi.endswith('.crdownload') or fi.endswith('.tmp')
 
     def __zip_file(self, _id):
         import zipfile
@@ -365,9 +404,6 @@ class Helper:
         with zipfile.ZipFile(zip_path, mode='w') as zipf:
             file_path = self.__get_tmp_download_file()
             zipf.write(file_path, os.path.basename(file_path))
-
-    def __save_to_db(self, _id):
-        pass
 
     def __download_result(self, success, message, is_exception=False):
         return {'success': success, 'message': message, "is_exception": is_exception}

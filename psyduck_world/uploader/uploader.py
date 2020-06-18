@@ -57,6 +57,9 @@ class Uploader:
         if not self.login():
             self.log('登陆错误')
             return False
+
+        dirs = self.lzy.get_dir_list()
+        self.upload_folder_id = dirs.find_by_name('psyduck').id
         return True
 
     def clear(self):
@@ -101,8 +104,6 @@ class Uploader:
         if not self.need_catch_all:
             return
         self.log('拉取数据中...')
-        dirs = self.lzy.get_dir_list()
-        self.upload_folder_id = dirs.find_by_name('psyduck').id
         self.file_list = self.lzy.get_file_list(self.upload_folder_id)
         self.dir_list = self.lzy.get_dir_list(self.upload_folder_id)
         self.log(f'文件数量：{len(self.file_list)}')
@@ -133,7 +134,7 @@ class Uploader:
         self.log(f'更新分享链接({self.upload_index}/{self.upload_total})：{_id} {info.url}')
         db.download_set_share_url(_id, info.url)
 
-    def upload_file(self, file_path, uploading_callback=None, uploaded_callback=None):
+    def upload_file(self, file_path, uploading_callback=None):
 
         # id
         file_name = os.path.basename(file_path)
@@ -183,20 +184,18 @@ class Uploader:
         def _uploaded_callback(fid, is_file):
             self.save_share_url(_id, fid, is_file)
             self.lzy.set_passwd(fid, '', is_file)
-            desc = f'{data["csdn"]["title"]}\n{data["csdn"]["description"]}'
+            desc = f'{data["info"]["title"]}\n{data["info"]["description"]}'
             self.lzy.set_desc(fid, desc, is_file)
 
         # 文件上传
-        self.log(f'开始上传({self.upload_index}/{self.upload_total})：{data["id"]} {data["csdn"]["size"]}')
+        self.log(f'开始上传({self.upload_index}/{self.upload_total})：{data["id"]} {data["info"]["size"]}')
         code = self.lzy.upload_file(_copy_path, self.upload_folder_id, callback=_uploading_callback,
                                     uploaded_handler=_uploaded_callback)
 
         if code != LanZouCloud.SUCCESS:
             self.log(f'上传失败({code})：{_id}')
-            uploaded_callback(False)
         else:
             self.log(f'上传完成：{_id}')
-            uploaded_callback(True)
 
         # 文件清理
         if os.path.exists(temp_copy_dir):
@@ -205,6 +204,8 @@ class Uploader:
 
         # catch all
         self.need_catch_all = True
+
+        return code == LanZouCloud.SUCCESS
 
     def dispose(self):
         pass

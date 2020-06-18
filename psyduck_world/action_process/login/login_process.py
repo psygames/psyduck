@@ -13,11 +13,11 @@ def login_verify_get():
     for p in procedures:
         if p.act['uid'] == act['uid']:
             p.get_verify_code(act['message'])
-            db.act_set(act['id'], 'done', act['message'], act['result'])
+            db.act_set_state(act['id'], 'done', act['result'])
             solved = True
             break
     if not solved:
-        db.act_set(act['id'], 'fail', act['message'], 'procedure not exist.')
+        db.act_set_state(act['id'], 'fail', 'procedure not exist.')
 
 
 def login_verify_set():
@@ -28,18 +28,18 @@ def login_verify_set():
     for p in procedures:
         if p.act['uid'] == act['uid']:
             p.set_verify_code(act['message'])
-            db.act_set(act['id'], 'done', act['message'], act['result'])
+            db.act_set_state(act['id'], 'done', act['result'])
             solved = True
             break
     if not solved:
-        db.act_set(act['id'], 'fail', act['message'], 'procedure not exist.')
+        db.act_set_state(act['id'], 'fail', 'procedure not exist.')
 
 
 def login_request():
     act = db.act_get('login', 'request')
     if act is None:
         return
-    db.act_set(act['id'], 'process', act['message'], act['result'])
+    db.act_set_state(act['id'], 'process', act['result'])
     procedures.append(action_process.login.login_procedure.LoginProcedure(act))
 
 

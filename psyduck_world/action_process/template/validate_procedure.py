@@ -43,11 +43,10 @@ class ValidateProcedure:
         if self.helper is not None:
             self.helper.dispose()
 
-    def set_state(self, state, message, result):
+    def set_state(self, state, result):
         if self.act['id'] != 'fake_validate':
-            db.act_set(self.act['id'], state, message, result)
+            db.act_set_state(self.act['id'], state, result)
         self.act['state'] = state
-        self.act['message'] = message
         self.act['result'] = result
 
     def update(self):
@@ -58,7 +57,7 @@ class ValidateProcedure:
     def check_timeout(self):
         if (datetime.now() - self.act['time']).seconds >= 30:
             print('验证超时')
-            self.set_state('fail', self.act['message'], 'timeout')
+            self.set_state('fail', 'timeout')
             self._over()
 
     def goto_validate(self):
@@ -72,16 +71,16 @@ class ValidateProcedure:
     def expired(self):
         print(f'验证登陆状态（失效）: {self.csdn}')
         self._over()
-        self.set_state('done', self.act['message'], 'expired')
+        self.set_state('done', 'expired')
         db.user_set_state(self.act['uid'], self.csdn, 'expired')
 
     def fail(self, msg):
         print(f'验证登陆状态发生错误（{msg}）: {self.csdn}')
         self._over()
-        self.set_state('fail', self.act['message'], msg)
+        self.set_state('fail', msg)
 
     def done(self):
         print(f'验证登陆状态（有效）: {self.csdn}')
         self._over()
-        self.set_state('done', self.act['message'], 'on')
+        self.set_state('done', 'on')
         db.user_set_state(self.act['uid'], self.csdn, 'on')

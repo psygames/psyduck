@@ -13,7 +13,7 @@ def process_request():
     act = db.act_get('update', 'request')
     if act is None:
         return
-    db.act_set(act['id'], 'process', act['message'], act['result'])
+    db.act_set_state(act['id'], 'process', act['result'])
     procedures.append(update_procedure.UpdateProcedure(act))
 
 

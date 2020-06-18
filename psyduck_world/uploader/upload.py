@@ -11,7 +11,7 @@ settings = {
 }
 
 
-def upload(file_path, uploading_callback, uploaded_callback):
+def upload(file_path, uploading_callback):
     up = Uploader(settings)
-    up.login()
-    up.upload_file(file_path, uploading_callback, uploaded_callback)
+    up.init()
+    return up.upload_file(file_path, uploading_callback)
