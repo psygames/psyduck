@@ -1,5 +1,6 @@
 import pymongo
 from datetime import datetime
+from core import db_setting
 
 db: pymongo.MongoClient = None
 act: pymongo.collection.Collection = None
@@ -14,7 +15,8 @@ def init():
     if _is_inited:
         return
     global db
-    client = pymongo.MongoClient(host="127.0.0.1", port=27017)
+    client = pymongo.MongoClient(host=db_setting.host, port=db_setting.port
+                                 , username=db_setting.username, password=db_setting.password)
     db = client['psyduck']
     act_init()
     user_init()
