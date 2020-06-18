@@ -3,4 +3,4 @@ selenium==3.141.0
 urllib3==1.25.9
 Django==3.0.6
 requests~=2.23.0
-lanzou-api=2.5.0
+lanzou-api~=2.5.0

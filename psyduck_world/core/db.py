@@ -15,8 +15,8 @@ def init():
     if _is_inited:
         return
     global db
-    client = pymongo.MongoClient(host=db_setting.host, port=db_setting.port
-                                 , username=db_setting.username, password=db_setting.password)
+    client = pymongo.MongoClient(
+        f"mongodb://{db_setting.username}:{db_setting.password}@{db_setting.host}:{db_setting.port}/database?authMechanism={db_setting.auth_mechanism}")
     db = client['psyduck']
     act_init()
     user_init()
