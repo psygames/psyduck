@@ -15,4 +15,5 @@ def stop():
 
 
 def main():
-    os.system(core.path.frozen_path('webserver/manage.py runserver 0.0.0.0:8000'))
+    py = core.path.frozen_path('webserver/manage.py runserver 0.0.0.0:8000')
+    os.system(f'python {py}')
