@@ -12,6 +12,11 @@ settings = {
 
 
 def upload(file_path, uploading_callback):
-    up = Uploader(settings)
-    up.init()
-    return up.upload_file(file_path, uploading_callback)
+    try:
+        up = Uploader(settings)
+        up.init()
+        return up.upload_file(file_path, uploading_callback)
+    except:
+        import traceback
+        traceback.print_exc()
+        return False

@@ -9,9 +9,28 @@ from core import file_helper
 from datetime import datetime
 
 
+class HelperResult:
+    success = False
+    result = None
+    is_exception = False
+    hint = False
+
+    def __init__(self, success: bool, result, is_exception: bool):
+        self.success = success
+        self.result = result
+        self.is_exception = is_exception
+
+        if not success:
+            if is_exception:
+                print(f'{result} (exception)')
+            else:
+                print(f'{result}')
+
+
 class Helper:
     driver = None
     is_driver_busy = False
+    is_disposed = False
     zip_save_path = path.frozen_path('caches/zips')
     download_path = path.frozen_path('caches/downloads')
     drivers_path = path.frozen_path('caches/drivers')
@@ -20,60 +39,65 @@ class Helper:
     tmp_driver_dir = ''
     tmp_option_path = ''
 
+    def init(self, _option_name='', mobile_mode=True) -> HelperResult:
+        try:
+            if file_helper.is_lock_option(_option_name):
+                print(f'初始化 Helper 失败, option 已被锁定 {_option_name}')
+                return self._fail_result('option 已被锁定')
+            file_helper.lock_option(_option_name)
+            self.is_driver_busy = True
+            self.__get_tmp_driver()
+            self.option_name = _option_name
+            self.tmp_option_path = os.path.join(self.options_path, _option_name)
+            _driver_path = os.path.join(self.tmp_driver_dir, 'chromedriver')
+            self.download_path = os.path.join(self.download_path, datetime.now().strftime('%Y%m%d%H%M%S%f'))
+            self.download_path = self.download_path.replace('\\', '/')
+            if platform.system() == 'Windows':
+                self.download_path = self.download_path.replace('/', '\\')
+                _driver_path += ".exe"
+            if not os.path.exists(_driver_path):
+                print(f'chromedriver not found {_driver_path}')
+                return self._fail_result('chromedriver not found.')
+
+            options = selenium.webdriver.ChromeOptions()
+            options.add_argument("user-data-dir=" + self.tmp_option_path)
+            options.add_argument('--mute-audio')
+            options.add_argument('--disable-gpu')
+            options.add_argument("--log-level=3")
+            if mobile_mode:
+                mobile_emulation = {"deviceName": "Nexus 7"}
+                options.add_experimental_option("mobileEmulation", mobile_emulation)
+
+            prefs = {
+                "disable-popup-blocking": False,
+                "download.prompt_for_download": False,
+                "download.directory_upgrade": True,
+                "download.default_directory": self.download_path,
+                "profile.default_content_settings.popups": 0,
+                'profile.default_content_setting_values': {'notifications': 2},
+            }
+
+            options.add_experimental_option("prefs", prefs)
+            options.add_experimental_option("excludeSwitches", ['enable-automation'])
+            options.add_experimental_option('useAutomationExtension', False)
+
+            cap = DesiredCapabilities.CHROME
+            cap["pageLoadStrategy"] = "none"
+
+            os.chmod(_driver_path, 0o777)
+            self.driver = selenium.webdriver.Chrome(options=options, executable_path=_driver_path,
+                                                    desired_capabilities=cap)
+            self.driver.set_window_size(500, 800)
+            self.reset_timeout()
+            return self._success_result()
+        except:
+            return self._except_result()
+
     def __get_tmp_driver(self):
         import datetime
         _name = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S_%f')
         self.tmp_driver_dir = path.frozen_path(f'caches/drivers/{_name}')
         shutil.copytree(path.frozen_path('driver'), self.tmp_driver_dir)
-
-    def init(self, _option_name='', mobile_mode=True):
-        if file_helper.is_lock_option(_option_name):
-            print(f'初始化 Helper 失败, option 已被锁定 {_option_name}')
-            return False
-        file_helper.lock_option(_option_name)
-        self.is_driver_busy = True
-        self.__get_tmp_driver()
-        self.option_name = _option_name
-        self.tmp_option_path = os.path.join(self.options_path, _option_name)
-        _driver_path = os.path.join(self.tmp_driver_dir, 'chromedriver')
-        self.download_path = os.path.join(self.download_path, datetime.now().strftime('%Y%m%d%H%M%S%f'))
-        self.download_path = self.download_path.replace('\\', '/')
-        if platform.system() == 'Windows':
-            self.download_path = self.download_path.replace('/', '\\')
-            _driver_path += ".exe"
-        if not os.path.exists(_driver_path):
-            raise Exception('chromedriver not exist at {}'.format(_driver_path))
-
-        options = selenium.webdriver.ChromeOptions()
-        options.add_argument("user-data-dir=" + self.tmp_option_path)
-        options.add_argument('--mute-audio')
-        options.add_argument('--disable-gpu')
-        options.add_argument("--log-level=3")
-        if mobile_mode:
-            mobile_emulation = {"deviceName": "Nexus 7"}
-            options.add_experimental_option("mobileEmulation", mobile_emulation)
-
-        prefs = {
-            "disable-popup-blocking": False,
-            "download.prompt_for_download": False,
-            "download.directory_upgrade": True,
-            "download.default_directory": self.download_path,
-            "profile.default_content_settings.popups": 0,
-            'profile.default_content_setting_values': {'notifications': 2},
-        }
-
-        options.add_experimental_option("prefs", prefs)
-        options.add_experimental_option("excludeSwitches", ['enable-automation'])
-        options.add_experimental_option('useAutomationExtension', False)
-
-        cap = DesiredCapabilities.CHROME
-        cap["pageLoadStrategy"] = "none"
-
-        os.chmod(_driver_path, 0o777)
-        self.driver = selenium.webdriver.Chrome(options=options, executable_path=_driver_path, desired_capabilities=cap)
-        self.driver.set_window_size(500, 800)
-        self.reset_timeout()
-        return True
 
     def reset_timeout(self):
         self.driver.set_page_load_timeout(10)
@@ -82,65 +106,6 @@ class Helper:
     def scroll_to(self, horizontal, vertical):
         js = f"window.scrollTo({horizontal},{vertical})"
         self.driver.execute_script(js)
-
-    def is_busy(self):
-        return self.is_driver_busy
-
-    def get_scan_qr(self):
-        if self.driver is None:
-            return ''
-        self.get('https://passport.csdn.net/login')
-        self.scroll_to(520, 0)
-        self.driver.switch_to.frame('iframe_id')
-        qr = self.find('//img[@class="qrcode lightBorder"]')
-        if qr is None:
-            return ''
-        src = qr.get_attribute('src')
-        self.driver.switch_to.default_content()
-        return src
-
-    def get_verify_code(self, phone):
-        if self.driver is None:
-            return
-        _input = self.find('//input[@id="phone"]')
-        _input.clear()
-        _input.send_keys(phone)
-        btn = self.find('//button[@class="btn btn-confirm btn-control"]')
-        btn.click()
-
-    def set_verify_code(self, code):
-        if self.driver is None:
-            return
-        _input = self.find('//input[@id="code"]')
-        _input.clear()
-        _input.send_keys(code)
-        btn = self.find('//button[@data-type="accountSecur"]')
-        btn.click()
-        time.sleep(1)
-        a = self.find('//a[text()="以后再说"]')
-        if a is not None:
-            a.click()
-
-    def is_login_wait_for_verify(self):
-        if self.driver is None:
-            return False
-        return self.driver.current_url.startswith('https://passport.csdn.net/sign')
-
-    def is_login_wait_for_qr_scan(self):
-        if self.driver is None:
-            return False
-        return self.driver.current_url.startswith('https://passport.csdn.net/login')
-
-    def is_login_success(self):
-        if self.driver is None:
-            return False
-        return self.driver.current_url.startswith(
-            'https://i.csdn.net/#/uc/profile') or self.driver.current_url.startswith('https://www.csdn.net/')
-
-    def get_username(self):
-        self.get('https://i.csdn.net/#/uc/profile')
-        username = self.find('//span[@class="id_name"]').text[3:]
-        return username
 
     def get(self, url, timeout=10, retry=5):
         self.driver.get(url)
@@ -179,6 +144,7 @@ class Helper:
         self.driver.set_window_size(width, height)
 
     def dispose(self, rm_option=True, close_delay=0.1):
+        self.is_disposed = True
         if self.driver is not None:
             time.sleep(close_delay)
             self.driver.close()
@@ -196,13 +162,126 @@ class Helper:
             time.sleep(0.1)
             shutil.rmtree(self.tmp_option_path)
 
-    def check_login(self):
-        self.get("https://i.csdn.net/#/uc/profile")
-        if self.driver.current_url.find('https://i.csdn.net/#/uc/profile') != -1:
-            return True
-        return False
+    def is_busy(self):
+        return self.is_driver_busy
 
-    def get_user_info(self):
+    def _result(self, success, result, is_exception) -> HelperResult:
+        return HelperResult(success, result, is_exception)
+
+    def _success_result(self, result=None):
+        return self._result(True, result, False)
+
+    def _fail_result(self, result=None):
+        return self._result(False, result, False)
+
+    def _except_result(self):
+        import traceback
+        traceback.print_exc()
+        return self._result(False, traceback.format_exc(), True)
+
+    def get_scan_qr(self) -> HelperResult:
+        try:
+            self.get('https://passport.csdn.net/login')
+            self.scroll_to(520, 0)
+            self.driver.switch_to.frame('iframe_id')
+            qr = self.find('//img[@class="qrcode lightBorder"]')
+            src = qr.get_attribute('src')
+            self.driver.switch_to.default_content()
+            return self._success_result(src)
+        except:
+            return self._except_result()
+
+    def get_verify_code(self, phone) -> HelperResult:
+        try:
+            _input = self.find('//input[@id="phone"]')
+            _input.clear()
+            _input.send_keys(phone)
+            btn = self.find('//button[@class="btn btn-confirm btn-control"]')
+            btn.click()
+            time.sleep(2)
+            err = self.find('//div[@id="js_err_dom"]')
+            is_err = err is not None and err.get_attribute('class') == 'col-xs-12 col-sm-12 col-pl-no text-error'
+            if is_err:
+                err_info = err.text.strip()
+                res = self._success_result(err_info)
+                res.hint = True
+                return res
+
+            sent = self.find('//button[@class="btn btn-confirm btn-control"]')
+            if sent.text.strip().endswith('s'):
+                return self._success_result()
+
+            return self._fail_result('get_verify_code unknown error')
+        except:
+            return self._except_result()
+
+    def set_verify_code(self, code) -> HelperResult:
+        try:
+            _input = self.find('//input[@id="code"]')
+            _input.clear()
+            _input.send_keys(code)
+            btn = self.find('//button[@data-type="accountSecur"]')
+            btn.click()
+            time.sleep(2)
+            err = self.find('//div[@id="js_err_dom"]')
+            is_err = err is not None and err.get_attribute('class') == 'col-xs-12 col-sm-12 col-pl-no text-error'
+            if is_err:
+                err_info = err.text.strip()
+                res = self._success_result(err_info)
+                res.hint = True
+                return res
+
+            # 系统检测到 xxx 疑似被盗，请尽快修改密码
+            a = self.find('//a[text()="以后再说"]')
+            if a is not None:
+                a.click()
+                time.sleep(2)
+                if self.driver.current_url.startswith('https://passport.csdn.net/sign'):
+                    return self._fail_result('set_verify_code unknown error')
+
+            return self._success_result()
+        except:
+            return self._except_result()
+
+    def is_login_wait_for_verify(self) -> HelperResult:
+        try:
+            _res = self.driver.current_url.startswith('https://passport.csdn.net/sign')
+            return self._success_result(_res)
+        except:
+            return self._except_result()
+
+    def is_login_wait_for_qr_scan(self) -> HelperResult:
+        try:
+            _res = self.driver.current_url.startswith('https://passport.csdn.net/login')
+            return self._success_result(_res)
+        except:
+            return self._except_result()
+
+    def is_login_success(self) -> HelperResult:
+        try:
+            _url = self.driver.current_url
+            _res = _url.startswith('https://i.csdn.net/#/uc/profile') or _url.startswith('https://www.csdn.net/')
+            return self._success_result(_res)
+        except:
+            return self._except_result()
+
+    def get_username(self) -> HelperResult:
+        try:
+            self.get('https://i.csdn.net/#/uc/profile')
+            username = self.find('//span[@class="id_name"]').text[3:]
+            return self._success_result(username)
+        except:
+            return self._except_result()
+
+    def check_login(self) -> HelperResult:
+        try:
+            self.get("https://i.csdn.net/#/uc/profile")
+            _res = self.driver.current_url.find('https://i.csdn.net/#/uc/profile') != -1
+            return self._success_result(_res)
+        except:
+            return self._except_result()
+
+    def get_user_info(self) -> HelperResult:
         try:
             info = {}
             self.get('https://my.csdn.net/')
@@ -211,7 +290,7 @@ class Helper:
             info['coin'] = self.find('//label[@class="own_t_l_lab"]/em').text
             info['head'] = self.find('//img[@alt="img"]').get_attribute('src')
             self.get('https://mp.csdn.net/console/vipService')
-            import datetime
+            time.sleep(3)  # 异步加载的界面，等一会
             vip = {}
             vip_title_tag = self.find('//h3[@class="server--status-title"]')
             vip_title = ''
@@ -220,23 +299,24 @@ class Helper:
             if vip_title == '当前 vip 情况':
                 vip['is_vip'] = True
                 vip['count'] = int(self.find('//li[@class="vipserver-count"]/span').text)
-                vip['date'] = datetime.datetime.strptime(self.find('//li[@class="vipserver-time"]').text[8:],
-                                                         '%Y-%m-%d')
+                vip['date'] = datetime.strptime(self.find('//li[@class="vipserver-time"]').text[8:], '%Y-%m-%d')
             else:
                 vip['is_vip'] = False
                 vip['count'] = 0
-                vip['date'] = datetime.datetime(1970, 1, 1)
+                vip['date'] = datetime(1970, 1, 1)
             info['vip'] = vip
-            return self._result(True, info)
+            return self._success_result(info)
         except:
-            import traceback
-            traceback.print_exc()
-            return self._result(False, traceback.format_exc(), True)
+            return self._except_result()
 
-    def logout(self):
-        self.get('https://passport.csdn.net/account/logout')
+    def logout(self) -> HelperResult:
+        try:
+            self.get('https://passport.csdn.net/account/logout')
+            return self._success_result()
+        except:
+            return self._except_result()
 
-    def get_download_info(self, url):
+    def get_download_info(self, url) -> HelperResult:
         try:
             if self.driver.current_url != url:
                 self.get(url)
@@ -253,25 +333,26 @@ class Helper:
             _str_time = self.find('//div[@class="resource_msg"]/span[4]').text.strip()
             upload_time = datetime.strptime(_str_time, '%Y-%m-%d')
             uploader = self.find('//div[@class="user_name"]/a').text
-            return self._result(True,
-                                {'url': url, 'title': title, 'description': desc, 'type': _type, 'size': size,
-                                 'star': stars, 'point': point, 'upload_time': upload_time, 'uploader': uploader})
+            return self._success_result({'url': url, 'title': title, 'description': desc, 'type': _type, 'size': size,
+                                         'star': stars, 'point': point, 'upload_time': upload_time,
+                                         'uploader': uploader})
         except:
-            import traceback
-            traceback.print_exc()
-            return self._result(False, traceback.format_exc(), True)
+            return self._except_result()
 
-    def download(self, url, callback):
-        step = 'begin download'
+    def download(self, url, callback) -> HelperResult:
         try:
+            step = 'begin download'
+            callback(step)
+
             step = 'url cut #'
+            callback(step)
             if url.find('#') != -1:
                 url = url[0:url.index('#')]
 
             step = 'valid url'
             callback(step)
             if not self.__valid_download_url(url):
-                return self._result(False, "无效的下载地址")
+                return self._fail_result("无效的下载地址")
 
             step = 'get id'
             callback(step)
@@ -285,15 +366,15 @@ class Helper:
             callback(step)
             btn = self.find('//a[@class="btn-block-link btn-border-red do_download"]')
             if btn is None:
-                return self._result(False, "该资源没有下载通道")
+                return self._fail_result("该资源没有下载通道")
 
             step = 'get info'
             callback(step)
             res = self.get_download_info(url)
-            if not res['success']:
-                return self._result(False, '获取下载信息失败', True)
+            if not res.success:
+                return self._except_result()
 
-            info = res['result']
+            info = res.result
             info['id'] = _id
 
             step = 'clear download dir'
@@ -308,7 +389,7 @@ class Helper:
             callback(step)
             time.sleep(1)
             if self.driver.current_url != url:
-                return self._result(False, 'redirect')
+                return self._fail_result('redirect')
 
             step = 'check block'
             callback(step)
@@ -316,13 +397,13 @@ class Helper:
             block = self.find('//div[@id="st_toastBox"]').get_attribute('style').find('opacity:') != -1
             if block:
                 info = self.find('//span[@id="st_toastContent"]').text
-                return self._result(False, info)
+                return self._fail_result(info)
 
             step = 'get size'
             callback(step)
             size_str = self.find('//div[@class="resource_msg"]/span[3]')
             if size_str is None:
-                return self._result(False, 'get size')
+                return self._fail_result('get size fail')
             size_str = size_str.text
             _size = 0
             if size_str.endswith('KB'):
@@ -351,11 +432,9 @@ class Helper:
 
             step = 'finish'
             callback(step)
-            return self._result(True, info)
+            return self._success_result(info)
         except:
-            import traceback
-            traceback.print_exc()
-            return self._result(False, step, True)
+            return self._except_result()
 
     def __valid_download_url(self, url: str):
         if url.find('download.csdn.net/download/') != -1:
@@ -420,6 +499,3 @@ class Helper:
         with zipfile.ZipFile(zip_path, mode='w') as zipf:
             file_path = self.__get_tmp_download_file()
             zipf.write(file_path, os.path.basename(file_path))
-
-    def _result(self, success, result, is_exception=False):
-        return {'success': success, 'result': result, "is_exception": is_exception}

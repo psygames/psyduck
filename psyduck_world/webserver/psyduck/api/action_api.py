@@ -26,7 +26,7 @@ def json_dumps(dic):
     return json.dumps(dic, ensure_ascii=False, indent=4, cls=MyJSONEncoder)
 
 
-def _common_build(status, uid=None, token=None, state=None, result=None, message=None):
+def _common_build(status, uid=None, token=None, state=None, result=None):
     dic = {'status': status}
     if uid is not None:
         dic['uid'] = uid
@@ -36,13 +36,11 @@ def _common_build(status, uid=None, token=None, state=None, result=None, message
         dic['state'] = state
     if result is not None:
         dic['result'] = result
-    if message is not None:
-        dic['message'] = message
     return json_dumps(dic)
 
 
 def _error_build(error):
-    return _common_build('error', message=error)
+    return _common_build('error', result=error)
 
 
 def _error_xxx_empty(xxx):
@@ -83,7 +81,7 @@ def _state_build(act):
     return _common_build('ok', state=act['state'], result=act['result'])
 
 
-def _success_build(result):
+def _success_build(result=None):
     return _common_build('ok', result=result)
 
 
@@ -129,12 +127,12 @@ def login_verify_get(token, uid, phone):
     act = db.act.find_one({'id': token, 'uid': uid})
     if act is None:
         return _error_token_not_exist()
-    if act['state'] == 'verify_get':
-        combine_token = token + '_verify_get'
+    if act['state'].startswith('verify_get'):
+        combine_token = f'{token}_verify_get_{_gen_token()}'
         act = db.act.find_one({'id': combine_token, 'uid': uid})
         if act is None:
             db.act_create(combine_token, uid, 'login_verify_get', 'request', phone)
-            return _token_build(token)
+            return _success_build()
     return login_get_state(token, uid)
 
 
@@ -149,12 +147,12 @@ def login_verify_set(token, uid, code):
     act = db.act.find_one({'id': token, 'uid': uid})
     if act is None:
         return _error_token_not_exist()
-    if act['state'] == 'verify_set':
-        combine_token = token + '_verify_set'
+    if act['state'].startswith('verify_set'):
+        combine_token = f'{token}_verify_set_{_gen_token()}'
         act = db.act.find_one({'id': combine_token, 'uid': uid})
         if act is None:
             db.act_create(combine_token, uid, 'login_verify_set', 'request', code)
-            return _token_build(token)
+            return _success_build()
     return login_get_state(token, uid)
 
 

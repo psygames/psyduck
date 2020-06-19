@@ -1,7 +1,5 @@
 from django.http import HttpResponse
 from .api import action_api
-import sys
-import json
 
 
 def _get(request, key, default=''):

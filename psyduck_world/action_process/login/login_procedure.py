@@ -22,7 +22,7 @@ class LoginProcedure:
     def _over(self, rm_option=True):
         self.over = True
         self.current_func = None
-        if self.helper is not None:
+        if not self.helper.is_disposed:
             if not rm_option:
                 self.helper.dispose(rm_option, 2)
             else:
@@ -40,31 +40,33 @@ class LoginProcedure:
 
     def check_timeout(self):
         if (datetime.now() - self.act['time']).seconds >= 300:
-            self.set_state('fail', 'timeout')
-            self._over()
+            self._fail('timeout')
             print('登录超时')
 
     def process_start(self):
         print('登陆初始化...')
         res = self.helper.init(f'_tmp_option_login_{self.act["uid"]}', False)
-        if not res:
+        if not res.success:
+            self._fail('初始化失败')
             return
         self.current_func = self.goto_login
 
     def goto_login(self):
         print('获取二维码')
-        qr = self.helper.get_scan_qr()
-        if qr is None or qr == '':
-            self.set_state('fail', 'get qrcode fail')
-            self._over()
-            print('获取登陆二维码失败')
+        res = self.helper.get_scan_qr()
+        if not res.success:
+            self._fail('取登陆二维码失败')
             return
-        self.set_state('scan', qr)
+        self.set_state('scan', res.result)
         print('等待扫码')
         self.current_func = self.wait_scan
 
     def wait_scan(self):
-        if not self.helper.is_login_wait_for_qr_scan():
+        res = self.helper.is_login_wait_for_qr_scan()
+        if not res.success:
+            self._fail('check is_login_wait_for_qr_scan fail')
+            return
+        if not res.result:
             self.current_func = self.scan_next
             print('扫码完成')
 
@@ -74,36 +76,74 @@ class LoginProcedure:
             self.current_func = self.wait_verify
             print('等待验证')
         elif self.helper.is_login_success():
-            self.current_func = self.done
+            self.current_func = self._done
             print('登录完成')
 
     def wait_verify(self):
-        if not self.helper.is_login_wait_for_verify():
+        res = self.helper.is_login_wait_for_verify()
+        if not res.success:
+            self._fail('check is_login_wait_for_verify fail')
+            return
+        if not res.result:
             self.current_func = self.verify_next
             print('验证完成')
 
     def get_verify_code(self, phone):
-        if not self.helper.is_login_wait_for_verify():
+        res = self.helper.is_login_wait_for_verify()
+        if not res.success:
+            self._fail('check is_login_wait_for_verify fail')
             return
-        self.helper.get_verify_code(phone)
-        self.set_state('verify_set', self.act['result'])
+        if not res.result:
+            return
+
+        res = self.helper.get_verify_code(phone)
+        if not res.success:
+            self._fail('get_verify_code fail')
+            return
+
+        if res.hint:
+            self.set_state('verify_get_hint', res.result)
+        else:
+            self.set_state('verify_set', self.act['result'])
 
     def set_verify_code(self, code):
-        if not self.helper.is_login_wait_for_verify():
+        res = self.helper.is_login_wait_for_verify()
+        if not res.success:
+            self._fail('check is_login_wait_for_verify fail')
             return
-        self.helper.set_verify_code(code)
+        if not res.result:
+            return
+
+        res = self.helper.set_verify_code(code)
+        if not res.success:
+            self._fail('set_verify_code fail')
+            return
+
+        if res.hint:
+            self.set_state('verify_set_hint', res.result)
+        else:
+            self.set_state('wait_for_done', self.act['result'])
 
     def verify_next(self):
-        if self.helper.is_login_success():
-            self.current_func = self.done
+        res = self.helper.is_login_success()
+        if not res.success:
+            self._fail('check is_login_success fail')
+            return
+        if res.result:
+            self.current_func = self._done
 
-    def done(self):
-        csdn = self.helper.get_username()
-        if csdn is None or csdn == '':
-            self.set_state('fail', 'timeout')
-            self._over()
+    def _fail(self, message):
+        print(f'登录失败：{message}')
+        self.set_state('fail', message)
+        self._over()
+
+    def _done(self):
+        res = self.helper.get_username()
+        if not res.success:
+            self._fail('获取 CSDN 用户信息失败')
             print('获取 CSDN 用户信息失败: ' + self.act['uid'])
             return
+        csdn = res.result
         self._over(False)
         file_helper.move_option(self.helper.option_name, csdn)
         print('登录完成: ' + csdn)

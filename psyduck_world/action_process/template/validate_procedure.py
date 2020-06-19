@@ -40,7 +40,7 @@ class ValidateProcedure:
     def _over(self):
         self.over = True
         self.current_func = None
-        if self.helper is not None:
+        if not self.helper.is_disposed:
             self.helper.dispose()
 
     def set_state(self, state, result):
