@@ -142,7 +142,7 @@ class Helper:
         username = self.find('//span[@class="id_name"]').text[3:]
         return username
 
-    def get(self, url, timeout=10, retry=3):
+    def get(self, url, timeout=10, retry=5):
         self.driver.get(url)
         time.sleep(1)
         time_counter = 0
@@ -203,51 +203,63 @@ class Helper:
         return False
 
     def get_user_info(self):
-        info = {}
-        self.get('https://my.csdn.net/')
-        info['nickname'] = self.find('//h3[@class="person_nick_name"]').text
-        info['point'] = self.find('//div[@class="own_t_l fl"]/label/em').text
-        info['coin'] = self.find('//label[@class="own_t_l_lab"]/em').text
-        info['head'] = self.find('//img[@alt="img"]').get_attribute('src')
-        self.get('https://mp.csdn.net/console/vipService')
-        import datetime
-        vip = {}
-        vip_title_tag = self.find('//h3[@class="server--status-title"]')
-        vip_title = ''
-        if vip_title_tag is not None:
-            vip_title = vip_title_tag.text
-        if vip_title == '当前 vip 情况':
-            vip['is_vip'] = True
-            vip['count'] = int(self.find('//li[@class="vipserver-count"]/span').text)
-            vip['date'] = datetime.datetime.strptime(self.find('//li[@class="vipserver-time"]').text[8:], '%Y-%m-%d')
-        else:
-            vip['is_vip'] = False
-            vip['count'] = 0
-            vip['date'] = datetime.datetime(1970, 1, 1)
-        info['vip'] = vip
-        return info
+        try:
+            info = {}
+            self.get('https://my.csdn.net/')
+            info['nickname'] = self.find('//h3[@class="person_nick_name"]').text
+            info['point'] = self.find('//div[@class="own_t_l fl"]/label/em').text
+            info['coin'] = self.find('//label[@class="own_t_l_lab"]/em').text
+            info['head'] = self.find('//img[@alt="img"]').get_attribute('src')
+            self.get('https://mp.csdn.net/console/vipService')
+            import datetime
+            vip = {}
+            vip_title_tag = self.find('//h3[@class="server--status-title"]')
+            vip_title = ''
+            if vip_title_tag is not None:
+                vip_title = vip_title_tag.text
+            if vip_title == '当前 vip 情况':
+                vip['is_vip'] = True
+                vip['count'] = int(self.find('//li[@class="vipserver-count"]/span').text)
+                vip['date'] = datetime.datetime.strptime(self.find('//li[@class="vipserver-time"]').text[8:],
+                                                         '%Y-%m-%d')
+            else:
+                vip['is_vip'] = False
+                vip['count'] = 0
+                vip['date'] = datetime.datetime(1970, 1, 1)
+            info['vip'] = vip
+            return self._result(True, info)
+        except:
+            import traceback
+            traceback.print_exc()
+            return self._result(False, traceback.format_exc(), True)
 
     def logout(self):
         self.get('https://passport.csdn.net/account/logout')
 
     def get_download_info(self, url):
-        if self.driver.current_url != url:
-            self.get(url)
-        title = self.find('//div[@class="resource_title"]').text
-        desc = self.find('//div[@class="resource_description"]/p').text
-        stars = 0
-        for i in range(1, 6):
-            if self.find(f'//span[@class="starts"]/i[{i}]').get_attribute('class') == 'fa fa-star':
-                stars = i - 1
-                break
-        point = self.find('//div[@class="resource_msg"]/span[1]').text.strip()
-        _type = self.find('//div[@class="resource_msg"]/span[2]').text.strip()
-        size = self.find('//div[@class="resource_msg"]/span[3]').text.strip()
-        _str_time = self.find('//div[@class="resource_msg"]/span[4]').text.strip()
-        upload_time = datetime.strptime(_str_time, '%Y-%m-%d')
-        uploader = self.find('//div[@class="user_name"]/a').text
-        return {'url': url, 'title': title, 'description': desc, 'type': _type, 'size': size, 'star': stars,
-                'point': point, 'upload_time': upload_time, 'uploader': uploader}
+        try:
+            if self.driver.current_url != url:
+                self.get(url)
+            title = self.find('//div[@class="resource_title"]').text
+            desc = self.find('//div[@class="resource_description"]/p').text
+            stars = 0
+            for i in range(1, 6):
+                if self.find(f'//span[@class="starts"]/i[{i}]').get_attribute('class') == 'fa fa-star':
+                    stars = i - 1
+                    break
+            point = self.find('//div[@class="resource_msg"]/span[1]').text.strip()
+            _type = self.find('//div[@class="resource_msg"]/span[2]').text.strip()
+            size = self.find('//div[@class="resource_msg"]/span[3]').text.strip()
+            _str_time = self.find('//div[@class="resource_msg"]/span[4]').text.strip()
+            upload_time = datetime.strptime(_str_time, '%Y-%m-%d')
+            uploader = self.find('//div[@class="user_name"]/a').text
+            return self._result(True,
+                                {'url': url, 'title': title, 'description': desc, 'type': _type, 'size': size,
+                                 'star': stars, 'point': point, 'upload_time': upload_time, 'uploader': uploader})
+        except:
+            import traceback
+            traceback.print_exc()
+            return self._result(False, traceback.format_exc(), True)
 
     def download(self, url, callback):
         step = 'begin download'
@@ -259,7 +271,7 @@ class Helper:
             step = 'valid url'
             callback(step)
             if not self.__valid_download_url(url):
-                return self.__download_result(False, "无效的下载地址")
+                return self._result(False, "无效的下载地址")
 
             step = 'get id'
             callback(step)
@@ -273,11 +285,15 @@ class Helper:
             callback(step)
             btn = self.find('//a[@class="btn-block-link btn-border-red do_download"]')
             if btn is None:
-                return self.__download_result(False, "该资源没有下载通道")
+                return self._result(False, "该资源没有下载通道")
 
             step = 'get info'
             callback(step)
-            info = self.get_download_info(url)
+            res = self.get_download_info(url)
+            if not res['success']:
+                return self._result(False, '获取下载信息失败', True)
+
+            info = res['result']
             info['id'] = _id
 
             step = 'clear download dir'
@@ -292,7 +308,7 @@ class Helper:
             callback(step)
             time.sleep(1)
             if self.driver.current_url != url:
-                return self.__download_result(False, 'redirect')
+                return self._result(False, 'redirect')
 
             step = 'check block'
             callback(step)
@@ -300,13 +316,13 @@ class Helper:
             block = self.find('//div[@id="st_toastBox"]').get_attribute('style').find('opacity:') != -1
             if block:
                 info = self.find('//span[@id="st_toastContent"]').text
-                return self.__download_result(False, info)
+                return self._result(False, info)
 
             step = 'get size'
             callback(step)
             size_str = self.find('//div[@class="resource_msg"]/span[3]')
             if size_str is None:
-                return self.__download_result(False, 'get size')
+                return self._result(False, 'get size')
             size_str = size_str.text
             _size = 0
             if size_str.endswith('KB'):
@@ -335,11 +351,11 @@ class Helper:
 
             step = 'finish'
             callback(step)
-            return self.__download_result(True, info)
+            return self._result(True, info)
         except:
             import traceback
             traceback.print_exc()
-            return self.__download_result(False, step, True)
+            return self._result(False, step, True)
 
     def __valid_download_url(self, url: str):
         if url.find('download.csdn.net/download/') != -1:
@@ -405,5 +421,5 @@ class Helper:
             file_path = self.__get_tmp_download_file()
             zipf.write(file_path, os.path.basename(file_path))
 
-    def __download_result(self, success, message, is_exception=False):
-        return {'success': success, 'message': message, "is_exception": is_exception}
+    def _result(self, success, result, is_exception=False):
+        return {'success': success, 'result': result, "is_exception": is_exception}

@@ -13,4 +13,7 @@ urlpatterns = [
     path('update', views.update),
     path('update_get_state', views.update_get_state),
     path('user_list', views.user_list),
+    path('download_get', views.download_get),
+    path('download_list', views.download_list),
+    path('download_find', views.download_find),
 ]

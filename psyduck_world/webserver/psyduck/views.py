@@ -6,8 +6,12 @@ import json
 
 def _get(request, key, default=''):
     if request.method == 'POST':
-        return request.POST.get(key, default)
-    return request.GET.get(key, default)
+        if key in request.POST:
+            return request.POST.get(key)
+        return default
+    if key in request.GET:
+        return request.GET.get(key)
+    return default
 
 
 def index(request):
@@ -89,4 +93,25 @@ def download_get_state(request):
     token = _get(request, 'token')
     uid = _get(request, 'uid')
     json_result = action_api.download_get_state(token, uid)
+    return HttpResponse(json_result)
+
+
+def download_get(request):
+    _id = _get(request, 'id')
+    json_result = action_api.download_get(_id)
+    return HttpResponse(json_result)
+
+
+def download_list(request):
+    uid = _get(request, 'uid')
+    csdn = _get(request, 'csdn')
+    _index = int(_get(request, 'index', '0'))
+    json_result = action_api.download_list(uid, csdn, _index)
+    return HttpResponse(json_result)
+
+
+def download_find(request):
+    keyword = _get(request, 'keyword')
+    _index = int(_get(request, 'index', '0'))
+    json_result = action_api.download_find(keyword, _index)
     return HttpResponse(json_result)

@@ -19,7 +19,7 @@ def main():
     if not result:
         print("初始化失败！")
     action_process.startup.run()
-    webserver.startup.run()
+    # webserver.startup.run()
     # uploader.startup.run()
     print('启动完成！')
     loop = 0

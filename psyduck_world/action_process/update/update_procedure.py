@@ -63,7 +63,10 @@ class UpdateProcedure:
         print('运行浏览器操作')
         is_login = self.helper.check_login()
         if is_login:
-            info = self.helper.get_user_info()
+            res = self.helper.get_user_info()
+            if not res['success']:
+                self.fail('获取用户信息失败')
+            info = res['result']
             db.user_set_info(self.act['uid'], self.csdn, info)
             self.done()
         else:

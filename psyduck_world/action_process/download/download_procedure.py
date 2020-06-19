@@ -29,7 +29,7 @@ class DownloadProcedure:
         _id = _url[_url.rfind('/') + 1:]
         _d = db.download_get(_id)
         if _d is not None:
-            self.done(_d['share_url'])
+            self.done(_id)
             return
         self.current_func = self.process_start
 
@@ -90,7 +90,7 @@ class DownloadProcedure:
 
         if res['success']:
             # save to db
-            info = res['message']
+            info = res['result']
             _d = db.download_get(info['id'])
             if _d is None:
                 db.download_create(info['id'], self.act['uid'], self.csdn, info['url'], info['title'], info['type'],
@@ -100,7 +100,7 @@ class DownloadProcedure:
             else:
                 self.done(_d['share_url'])
         else:
-            self.fail(res['message'])
+            self.fail(res['result'])
 
     _last_callback = datetime.now()
 
@@ -122,8 +122,7 @@ class DownloadProcedure:
         file_path = core.path.frozen_path(f'caches/zips/{_id}.zip')
         success = upload.upload(file_path, _upload_callback)
         if success:
-            _d = db.download_get(info['id'])
-            self.done(_d['share_url'])
+            self.done(_id)
         else:
             self.fail('上传失败')
 
@@ -132,7 +131,7 @@ class DownloadProcedure:
         self._over()
         self.set_state('fail', msg)
 
-    def done(self, share_url):
-        print(f'下载完成: {self.csdn} -> {share_url}')
+    def done(self, _id):
+        print(f'下载完成: {self.csdn} -> {_id}')
         self._over()
-        self.set_state('done', share_url)
+        self.set_state('done', _id)
