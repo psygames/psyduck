@@ -333,6 +333,8 @@ def download_find(keyword, index):
         return _error_xxx_empty('keyword')
 
     keywords = jieba.analyse.extract_tags(keyword, 3)
+    if len(keywords) == 0:
+        keywords.append(keyword)
     result = _download_search(keywords, 10, index)
     return _success_build(result)
 
