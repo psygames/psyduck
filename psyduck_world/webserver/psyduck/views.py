@@ -15,14 +15,7 @@ def _get(request, key, default=''):
 
 
 def index(request):
-    action = _get(request, 'action')
-
-    if hasattr(sys.modules[__name__], action):
-        return getattr(sys.modules[__name__], action)(request)
-
-    _err = {'status': 'error', 'message': '请求的 action 不存在。'}
-    json_result = json.dumps(_err, ensure_ascii=False, indent=4)
-    return HttpResponse(json_result)
+    return HttpResponse('psyduck~')
 
 
 # login
