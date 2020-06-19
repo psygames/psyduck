@@ -21,3 +21,6 @@ urlpatterns = [
     path('psyduck/', include('psyduck.urls')),
     path('admin/', admin.site.urls),
 ]
+handler400 = "webserver.error_page.page_400"
+handler404 = "webserver.error_page.page_404"
+handler500 = "webserver.error_page.page_500"
