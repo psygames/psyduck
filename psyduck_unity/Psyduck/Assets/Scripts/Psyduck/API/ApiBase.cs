@@ -5,16 +5,13 @@ using UnityEngine;
 using UnityEngine.Networking;
 using LitJson;
 
-namespace psyduck.api
+namespace Psyduck
 {
-    public class PsyduckAPI : MonoBehaviour
+    public class ApiBase
     {
-        private const string host = "http://39.105.150.229:8748/psyduck";
-
-
-        private IEnumerator _Post(string addr, Dictionary<string, string> postData, Action<string> callback)
+        protected IEnumerator _Post(string addr, Dictionary<string, string> postData, Action<string> callback)
         {
-            var url = host + "/" + addr;
+            var url = Psyduck._host + "/" + addr;
             var req = UnityWebRequest.Post(url, postData);
             yield return req.SendWebRequest();
             if (req.isHttpError || req.isNetworkError)
@@ -26,18 +23,11 @@ namespace psyduck.api
             callback?.Invoke(req.downloadHandler.text);
         }
 
-        public void UserList(string uid, Action<UserListResult> callback)
+        protected void Async(IEnumerator enumerator)
         {
-            var postData = new Dictionary<string, string>();
-            postData["uid"] = uid;
-            StartCoroutine(_Post("user_list", postData, (content) =>
-            {
-                var obj = JsonMapper.ToObject(content);
-                var res = new UserListResult();
-                res.Parse(obj);
-                callback?.Invoke(res);
-            }));
+            Psyduck.Async(enumerator);
         }
+
 
         public IEnumerator _Download(string uid, string csdn, string url,
             Action<StateResult> stateCallback,
@@ -102,7 +92,7 @@ namespace psyduck.api
           Action<DownloadResult> doneCallback,
           Action<Result> errorCallback)
         {
-            StartCoroutine(_Download(uid, csdn, url, stateCallback, doneCallback, errorCallback));
+            Async(_Download(uid, csdn, url, stateCallback, doneCallback, errorCallback));
         }
 
         public void Download(string uid, string url,

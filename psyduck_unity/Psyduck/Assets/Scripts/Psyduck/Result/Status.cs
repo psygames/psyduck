@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace psyduck.api
+namespace Psyduck
 {
     public enum Status
     {

@@ -65,7 +65,9 @@
     <Compile Include="Assets\Scripts\LitJson\Lexer.cs" />
     <Compile Include="Assets\Scripts\LitJson\Netstandard15Polyfill.cs" />
     <Compile Include="Assets\Scripts\LitJson\ParserToken.cs" />
-    <Compile Include="Assets\Scripts\Psyduck\PsyduckAPI.cs" />
+    <Compile Include="Assets\Scripts\Psyduck\API\ApiBase.cs" />
+    <Compile Include="Assets\Scripts\Psyduck\API\ApiUser.cs" />
+    <Compile Include="Assets\Scripts\Psyduck\Psyduck.cs" />
     <Compile Include="Assets\Scripts\Psyduck\Result\DownloadResult.cs" />
     <Compile Include="Assets\Scripts\Psyduck\Result\JsonDataExtention.cs" />
     <Compile Include="Assets\Scripts\Psyduck\Result\Result.cs" />
