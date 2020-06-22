@@ -286,8 +286,8 @@ class Helper:
             info = {}
             self.get('https://my.csdn.net/')
             info['nickname'] = self.find('//h3[@class="person_nick_name"]').text
-            info['point'] = self.find('//div[@class="own_t_l fl"]/label/em').text
-            info['coin'] = self.find('//label[@class="own_t_l_lab"]/em').text
+            info['point'] = int(self.find('//div[@class="own_t_l fl"]/label/em').text)
+            info['coin'] = int(self.find('//label[@class="own_t_l_lab"]/em').text)
             info['head'] = self.find('//img[@alt="img"]').get_attribute('src')
             self.get('https://mp.csdn.net/console/vipService')
             time.sleep(3)  # 异步加载的界面，等一会
@@ -327,7 +327,7 @@ class Helper:
                 if self.find(f'//span[@class="starts"]/i[{i}]').get_attribute('class') == 'fa fa-star':
                     stars = i - 1
                     break
-            point = self.find('//div[@class="resource_msg"]/span[1]').text.strip()
+            point = int(self.find('//div[@class="resource_msg"]/span[1]').text.strip()[:-1])
             _type = self.find('//div[@class="resource_msg"]/span[2]').text.strip()
             size = self.find('//div[@class="resource_msg"]/span[3]').text.strip()
             _str_time = self.find('//div[@class="resource_msg"]/span[4]').text.strip()
