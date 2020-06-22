@@ -130,3 +130,7 @@ dmypy.json
 downloader/chrome_options
 *.idea/
 psyduck_world/caches
+.vs/
+psyduck_unity/Psyduck/Library/
+psyduck_unity/Psyduck/Temp/
+psyduck_unity/Psyduck/obj/
