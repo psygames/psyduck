@@ -12,8 +12,7 @@ namespace Psyduck
         public bool isDone => state == "done";
         public bool isFail => state == "fail";
 
-        public string state;
-        public object result;
+        public string state = "";
 
         public override void Parse(JsonData jsonData)
         {

@@ -35,6 +35,13 @@ namespace Psyduck
             return 0;
         }
 
+        public static long GetLong(this JsonData jsonData, string key)
+        {
+            if (jsonData.Has(key))
+                return long.Parse(jsonData[key].ToString());
+            return 0;
+        }
+
         public static string GetString(this JsonData jsonData, string key)
         {
             if (jsonData.Has(key))

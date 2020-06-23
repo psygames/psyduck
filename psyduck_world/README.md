@@ -228,7 +228,7 @@ result | 结果 | 结果数据 或 错误信息 |
 
 ##### URL
 
-` /psyduck/user_list `
+` /psyduck/download_list `
 
 ##### 请求数据
 

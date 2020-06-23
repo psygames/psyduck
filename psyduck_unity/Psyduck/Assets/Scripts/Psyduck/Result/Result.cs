@@ -9,6 +9,7 @@ namespace Psyduck
 {
     public class Result
     {
+        public bool isOK => status == Status.OK;
         public Status status;
         public string errorMsg;
         public JsonData jsonResult;
