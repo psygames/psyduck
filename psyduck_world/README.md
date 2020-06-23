@@ -47,6 +47,21 @@ result | 结果 | 结果数据 或 错误信息 |
 
 ****
 
+##### 状态说明
+
+状态 | 说明  
+-|-
+request | 刚收到请求，即刚收到 login |
+process |  开始处理请求 |
+scan | 等待扫码 |
+verify_get | 等待输入手机号，获取验证码 |
+verify_get_hint | 手机号错误，继续等待，result中包含错误提示 |
+verify_set | 等待输入验证码，开始验证 |
+verify_set_hint | 验证码错误，继续等待，result中包含错误提示 |
+wait_for_done | 等待完成登陆 |
+
+****
+
 ###  获取短信验证码
 
 ##### URL
