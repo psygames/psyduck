@@ -53,14 +53,14 @@ result | 结果 | 结果数据 或 错误信息 |
 -|-
 request | 刚收到请求，即刚收到 login |
 process |  开始处理请求 |
-scan | 等待扫码 |
+scan | 等待扫码，result 中包含二维码链接 |
 verify_get | 等待输入手机号，获取验证码 |
-verify_get_hint | 手机号错误，继续等待，result中包含错误提示 |
+verify_get_hint | 手机号错误，继续等待，result 中包含错误提示 |
 verify_set | 等待输入验证码，开始验证 |
-verify_set_hint | 验证码错误，继续等待，result中包含错误提示 |
+verify_set_hint | 验证码错误，继续等待，result 中包含错误提示 |
 wait_for_done | 等待完成登陆 |
 done | 登陆完成 |
-fail | 登陆失败，result中包含错误提示 |
+fail | 登陆失败，result 中包含错误提示 |
 
 ****
 
