@@ -59,6 +59,8 @@ verify_get_hint | 手机号错误，继续等待，result中包含错误提示 |
 verify_set | 等待输入验证码，开始验证 |
 verify_set_hint | 验证码错误，继续等待，result中包含错误提示 |
 wait_for_done | 等待完成登陆 |
+done | 登陆完成 |
+fail | 登陆失败，result中包含错误提示 |
 
 ****
 
