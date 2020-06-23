@@ -33,6 +33,10 @@ def all_file_to_queue():
 
 
 def test():
+    for f in file_list:
+        if f.name == '5265765.zip':
+            print('找到文件！')
+
     fi = file_list.find_by_name('5265765.zip')
     if fi is not None:
         if lzy.delete(fi.id, True) == LanZouCloud.SUCCESS:

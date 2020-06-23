@@ -144,6 +144,7 @@ class Helper:
         self.driver.set_window_size(width, height)
 
     def dispose(self, rm_option=True, close_delay=0.1):
+        print(f'销毁浏览器（清空Option: {rm_option}）')
         self.is_disposed = True
         if self.driver is not None:
             time.sleep(close_delay)
