@@ -43,6 +43,15 @@ def _error_build(error):
     return _common_build('error', result=error)
 
 
+def _error_state_wrong(current=None, expect=None):
+    _err = 'wrong state.'
+    if current is not None:
+        _err += f' current： {current}'
+    if expect is not None:
+        _err += f' expect： {expect}'
+    return _error_build(_err)
+
+
 def _error_xxx_empty(xxx):
     return _error_build(f'{xxx} is empty.')
 
@@ -133,7 +142,7 @@ def login_verify_get(token, uid, phone):
         if act is None:
             db.act_create(combine_token, uid, 'login_verify_get', 'request', phone)
             return _success_build()
-    return login_get_state(token, uid)
+    return _error_state_wrong(act['state'], 'verify_get')
 
 
 def login_verify_set(token, uid, code):
@@ -153,7 +162,7 @@ def login_verify_set(token, uid, code):
         if act is None:
             db.act_create(combine_token, uid, 'login_verify_set', 'request', code)
             return _success_build()
-    return login_get_state(token, uid)
+    return _error_state_wrong(act['state'], 'verify_set')
 
 
 # download
