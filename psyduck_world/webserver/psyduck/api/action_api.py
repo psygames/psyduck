@@ -114,9 +114,10 @@ def login(token, uid):
 
         _condition = {'action': 'login', 'uid': uid,
                       '$nor': [{'state': 'fail'}, {'state': 'done'}]}
-        if db.act.find_one(_condition) is not None:
-            print(f'重复的登陆请求 {uid}')
-            return _error_repeated_request()
+        _act = db.act.find_one(_condition)
+        if _act is not None:
+            print(f'恢复之前的请求 {uid}')
+            return _token_build(_act['id'])
 
         token = _gen_token('login')
         db.act_create(token, uid, 'login', 'request')

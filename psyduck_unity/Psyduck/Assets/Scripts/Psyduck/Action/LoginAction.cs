@@ -16,11 +16,6 @@ namespace Psyduck
 
         public void Login(string uid)
         {
-            if (this.isBusy)
-            {
-                return;
-            }
-
             this.isBusy = true;
             this.uid = uid;
             this.token = "";

@@ -19,9 +19,12 @@ namespace Psyduck
             if (req.isHttpError || req.isNetworkError)
             {
                 Debug.LogError(req.error + " -> " + url);
+                req.Dispose();
                 yield break;
             }
-            callback?.Invoke(req.downloadHandler.text);
+            var text = req.downloadHandler.text;
+            req.Dispose();
+            callback?.Invoke(text);
         }
 
         private IEnumerator _IntervalPost(float interval, Func<bool> condition, int maxTimes,

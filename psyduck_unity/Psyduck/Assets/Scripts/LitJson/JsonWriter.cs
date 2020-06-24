@@ -384,7 +384,9 @@ namespace LitJson
         }
 
         [CLSCompliant(false)]
+#pragma warning disable CS3021 // 由于程序集没有 CLSCompliant 特性，因此类型或成员不需要 CLSCompliant 特性
         public void Write (ulong number)
+#pragma warning restore CS3021 // 由于程序集没有 CLSCompliant 特性，因此类型或成员不需要 CLSCompliant 特性
         {
             DoValidation (Condition.Value);
             PutNewline ();
