@@ -140,12 +140,21 @@ class LoginProcedure:
     def _done(self):
         res = self.helper.get_username()
         if not res.success:
+            self._fail('获取 CSDN 用户名')
+            print('获取 CSDN 用户名失败: ' + self.act['uid'])
+            return
+        csdn = res.result
+
+        res2 = self.helper.get_user_info()
+        if not res2.success:
             self._fail('获取 CSDN 用户信息失败')
             print('获取 CSDN 用户信息失败: ' + self.act['uid'])
             return
-        csdn = res.result
+        info = res2.result
+        
         self._over(False)
         file_helper.move_option(self.helper.option_name, csdn)
         print('登录完成: ' + csdn)
-        self.set_state('done', self.act['result'])
+        self.set_state('done', info)
         db.user_set_state(self.act['uid'], csdn, 'on')
+        db.user_set_info(self.act['uid'], csdn, info)
