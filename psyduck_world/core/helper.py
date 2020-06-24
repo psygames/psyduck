@@ -183,7 +183,6 @@ class Helper:
     def get_scan_qr(self) -> HelperResult:
         try:
             self.get('https://passport.csdn.net/login')
-            self.scroll_to(520, 0)
             self.driver.switch_to.frame('iframe_id')
             qr = self.find('//img[@class="qrcode lightBorder"]')
             src = qr.get_attribute('src')

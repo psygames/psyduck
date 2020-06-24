@@ -45,7 +45,7 @@ class LoginProcedure:
 
     def process_start(self):
         print('登陆初始化...')
-        res = self.helper.init(f'_tmp_option_login_{self.act["uid"]}', False)
+        res = self.helper.init(f'_tmp_option_login_{self.act["uid"]}')
         if not res.success:
             self._fail('初始化失败')
             return
