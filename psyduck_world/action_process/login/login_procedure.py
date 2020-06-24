@@ -151,7 +151,7 @@ class LoginProcedure:
             print('获取 CSDN 用户信息失败: ' + self.act['uid'])
             return
         info = res2.result
-        
+
         self._over(False)
         file_helper.move_option(self.helper.option_name, csdn)
         print('登录完成: ' + csdn)
