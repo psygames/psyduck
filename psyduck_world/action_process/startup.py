@@ -15,12 +15,8 @@ def run():
 
 def stop():
     global _looping
-    try:
-        action_process.manager.stop()
-        _looping = False
-    except:
-        import traceback
-        traceback.print_exc()
+    _looping = False
+    action_process.manager.stop()
 
 
 def main_loop():
