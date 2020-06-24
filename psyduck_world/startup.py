@@ -29,8 +29,17 @@ def main():
         time.sleep(1)
 
 
+def stop():
+    try:
+        action_process.startup.stop()
+    except:
+        import traceback
+        traceback.print_exc()
+        exit(0)
+
+
 if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        action_process.startup.stop()
+        stop()
