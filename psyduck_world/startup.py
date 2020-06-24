@@ -33,10 +33,7 @@ def stop():
     try:
         action_process.startup.stop()
     except:
-        import traceback
-        traceback.print_exc()
-        import sys
-        sys.exit()
+        pass
 
 
 if __name__ == '__main__':
