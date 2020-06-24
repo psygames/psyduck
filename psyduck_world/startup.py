@@ -35,7 +35,8 @@ def stop():
     except:
         import traceback
         traceback.print_exc()
-        exit(0)
+        import sys
+        sys.exit()
 
 
 if __name__ == '__main__':
