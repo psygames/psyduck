@@ -15,34 +15,53 @@ public class SpriteRename
             return;
         var path = AssetDatabase.GUIDToAssetPath(strs[0]);
         Debug.Log(path);
-        if (!path.StartsWith("Assets/Sprites"))
+        if (!path.StartsWith("Assets/Sprites", StringComparison.Ordinal))
             return;
 
-        Rename(path, (name, isFile) =>
+        Rename(path, (name, ext, isFile) =>
         {
             return name.ToLower();
         });
+
+        AssetDatabase.Refresh();
     }
 
-    private static void Rename(string path, Func<string, bool, string> handle)
+    private static void Rename(string path, Func<string, string, bool, string> handle, bool loop = true, bool withMeta = true)
     {
         if (File.Exists(path))
         {
-            var ext = Path.GetExtension(path);
             var name = Path.GetFileNameWithoutExtension(path);
             var dir = Path.GetDirectoryName(path);
-            var tmp = Path.Combine(dir, "_temp_" + name + "_temp_" + ext);
+            var ext = Path.GetExtension(path);
+            var tmp = Path.Combine(dir, "__tmp__" + name + ext);
             File.Move(path, tmp);
-            name = handle(name, true);
-            var dst = Path.Combine(dir, "_temp_" + name + "_temp_" + ext);
+            name = handle(name, ext, true);
+            var dst = Path.Combine(dir, name + ext);
             File.Move(tmp, dst);
         }
         else if (Directory.Exists(path))
         {
             var dir = Path.GetDirectoryName(path);
             var di = new DirectoryInfo(path);
-            var name = handle(di.Name, false);
+            var name = di.Name;
+            di.MoveTo(Path.Combine(dir, "__tmp__" + name));
+            name = handle(name, "", false);
             di.MoveTo(Path.Combine(dir, name));
+            if (loop)
+            {
+                foreach (var fsi in di.GetFileSystemInfos())
+                {
+                    if (fsi.Extension == ".meta" || fsi.Extension == ".DS_Store")
+                        continue;
+                    Rename(fsi.FullName, handle, loop, withMeta);
+                }
+            }
+        }
+
+        if (withMeta)
+        {
+            var meta = path + ".meta";
+            Rename(meta, handle, loop, false);
         }
     }
 

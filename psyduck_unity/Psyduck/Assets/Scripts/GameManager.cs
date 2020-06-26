@@ -7,9 +7,9 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        UIManager.Instance.loadViewFunc = (name) =>
+        UIManager.Instance.loadViewFunc = (_view) =>
         {
-            return Resources.Load<ViewBase>(name);
+            return Resources.Load<ViewBase>(_view);
         };
 
         UIManager.Open<MainView>();
