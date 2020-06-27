@@ -9,7 +9,7 @@ public class LoginView : ViewBase
 {
     enum State
     {
-        Login = 0,
+        Prepare = 0,
         Begin = 1,
         Scan = 2,
         VerifyGet = 3,
@@ -40,7 +40,7 @@ public class LoginView : ViewBase
         action.onProcess += Action_onProcess;
     }
 
-    private State lastState = State.Login;
+    private State lastState = State.Prepare;
     private void Action_onProcess(LoginStateResult obj)
     {
         if (obj.isRequest || obj.isProcess)
@@ -108,7 +108,7 @@ public class LoginView : ViewBase
         else
         {
             HideBusy();
-            state = State.Login;
+            state = State.Prepare;
         }
         Update();
     }

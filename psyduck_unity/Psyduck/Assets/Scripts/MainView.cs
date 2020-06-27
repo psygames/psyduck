@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class MainView : ViewBase
 {
-
     public void OnClickLogin()
     {
         Close();
