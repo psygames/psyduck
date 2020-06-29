@@ -14,6 +14,19 @@ namespace Psyduck
         public event Action<LoginResult> onFinish;
         public event Action<Result> onError;
 
+        public override void Recover(string uid, ActionInfo actionInfo)
+        {
+            base.Recover(uid, actionInfo);
+
+            if (isBusy)
+                return;
+
+            this.isBusy = true;
+            this.uid = uid;
+            this.token = actionInfo.token;
+            StateLoop();
+        }
+
         public void Login(string uid)
         {
             this.isBusy = true;

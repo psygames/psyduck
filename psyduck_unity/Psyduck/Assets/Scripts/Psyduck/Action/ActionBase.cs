@@ -52,5 +52,10 @@ namespace Psyduck
         {
             Async(_IntervalPost(interval, condition, maxTimes, addr, postData, callback));
         }
+
+        public virtual void Recover(string uid, ActionInfo actionInfo)
+        {
+
+        }
     }
 }

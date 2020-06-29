@@ -106,3 +106,9 @@ def download_find(request):
     _index = int(_get(request, 'index', '0'))
     json_result = action_api.download_find(keyword, _index)
     return HttpResponse(json_result)
+
+
+def recover_action(request):
+    uid = _get(request, 'uid')
+    json_result = action_api.recover_action(uid)
+    return HttpResponse(json_result)

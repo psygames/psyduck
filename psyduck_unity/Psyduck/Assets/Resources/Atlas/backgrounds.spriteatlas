@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: backgrounds
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 1
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: 8c13c648458124e33bab98e667f12d54, type: 3}
+    totalSpriteSurfaceArea: 29114481
+    bindAsDefault: 1
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 2f72a85156f0046378f662bdb11acbea, type: 3}
+  - {fileID: 21300000, guid: 79a4f6c1337ea4c01bcc9642074dae00, type: 3}
+  - {fileID: 21300000, guid: 87ea0a424a6724490bd969a18e43379a, type: 3}
+  - {fileID: 21300000, guid: 7c2b7ab24ac484bb9b07b6931306cffd, type: 3}
+  - {fileID: 21300000, guid: 47419bb3397c54ff7967ee52b5d3a120, type: 3}
+  - {fileID: 21300000, guid: 584885955589647d088bc81bf7da0a26, type: 3}
+  - {fileID: 21300000, guid: 4d8f5306499934747981ff7ef2684e9b, type: 3}
+  - {fileID: 21300000, guid: 1d5e431730e694fd6bea9c4ee59952dc, type: 3}
+  - {fileID: 21300000, guid: c2f05338c1dcb4330b9523ae0935e27b, type: 3}
+  - {fileID: 21300000, guid: 4b358b4880f9242f192740f50278495c, type: 3}
+  - {fileID: 21300000, guid: c4112a6bd9b7a4f85b48737b82a82503, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - yellow_green_background
+  - red_background_2
+  - dark_skin_background
+  - purple_background
+  - purple_light_background
+  - blue_green_red_background
+  - light_skin_background
+  - green_soft_background
+  - green_purple_background
+  - red_background
+  - blue_background_saturation
+  m_Tag: backgrounds
+  m_IsVariant: 0

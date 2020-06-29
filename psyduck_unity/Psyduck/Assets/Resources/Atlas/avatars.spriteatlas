@@ -1,0 +1,94 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: avatars
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 1
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: 34952832d52b648159546516d3b10114, type: 3}
+    totalSpriteSurfaceArea: 1019624
+    bindAsDefault: 1
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 55d43620f13b34feba3d017236e0d44f, type: 3}
+  - {fileID: 21300000, guid: 3381d950b3678447a9cf7bb64bdc1945, type: 3}
+  - {fileID: 21300000, guid: 08ed23e0d090c47c38b5227e3344fdd0, type: 3}
+  - {fileID: 21300000, guid: 09f068f0396d244fc81c9f4477f7d2a0, type: 3}
+  - {fileID: 21300000, guid: 7e0ed921e784246228eef6961a5c8389, type: 3}
+  - {fileID: 21300000, guid: c72672f1b365d44de8c8af013c5b9c1e, type: 3}
+  - {fileID: 21300000, guid: 76d2290235ebc44b7b1c696528aedc95, type: 3}
+  - {fileID: 21300000, guid: 31ec39532f39b4dfe86ea7aca5770df0, type: 3}
+  - {fileID: 21300000, guid: 877533d3b2db24913ad28c3459f73bdd, type: 3}
+  - {fileID: 21300000, guid: f24fbd8462dfe44878445c266005fdce, type: 3}
+  - {fileID: 21300000, guid: 0ce58aa457be94231baa650e0b83c101, type: 3}
+  - {fileID: 21300000, guid: 2be62e7542bf34201a8254eb9caa27e6, type: 3}
+  - {fileID: 21300000, guid: eedf2cf5b6baf4bb7a2b3a7b84ab0768, type: 3}
+  - {fileID: 21300000, guid: c80f5e866daf94586bc2fbd42faecd81, type: 3}
+  - {fileID: 21300000, guid: 49c00eb6191464ca2ab789fbd27bd916, type: 3}
+  - {fileID: 21300000, guid: 8f234af795f56415db17312460d9dccf, type: 3}
+  - {fileID: 21300000, guid: 614b4208ca28f413c9bf628b913ddbbe, type: 3}
+  - {fileID: 21300000, guid: 2472a7892ff5c4f86bcb5c27a89982cd, type: 3}
+  - {fileID: 21300000, guid: bc08a2996267745fe984a5134228885d, type: 3}
+  - {fileID: 21300000, guid: c676c0da9f1f0442fa8b158eb8d97ed1, type: 3}
+  - {fileID: 21300000, guid: 71bb017bb185c4452b92f8eb56f4bef2, type: 3}
+  - {fileID: 21300000, guid: c387c4bb141714a938fb8a2ce6753a5b, type: 3}
+  - {fileID: 21300000, guid: 79bdebedca3e74108855063bfce232dc, type: 3}
+  - {fileID: 21300000, guid: 42e0a22e84ebc46e8b758060ec2f637b, type: 3}
+  - {fileID: 21300000, guid: 055e7d1f907524d3d990454735b9d659, type: 3}
+  - {fileID: 21300000, guid: c59d5f4f789964705a992539721d02d3, type: 3}
+  - {fileID: 21300000, guid: d11c23efe26614d4288d78a06200b108, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - boy_1
+  - girl_3
+  - boy_4
+  - girl_3
+  - girl_2
+  - girl_2
+  - boy_2
+  - girl_2
+  - boy_3
+  - boy_1
+  - boy_4
+  - boy_3
+  - girl_1
+  - boy_2
+  - girl_3
+  - boy_1
+  - girl_1
+  - boy_2
+  - boy_3
+  - boy_4
+  - girl_3
+  - boy_1
+  - girl_1
+  - girl_1
+  - girl_2
+  - boy_3
+  - boy_2
+  m_Tag: avatars
+  m_IsVariant: 0

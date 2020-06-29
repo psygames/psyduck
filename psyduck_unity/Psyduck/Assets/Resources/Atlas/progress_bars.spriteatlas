@@ -1,0 +1,128 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: progress_bars
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 1
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: d357dce3903694de0aae0dc6c31e2a95, type: 3}
+    totalSpriteSurfaceArea: 1672686
+    bindAsDefault: 1
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: b4bf950037c834b299ccaba2b7aeccfd, type: 3}
+  - {fileID: 21300000, guid: fc369e101628740598c7108a3663fec7, type: 3}
+  - {fileID: 21300000, guid: a7fc4730195ad49b892457b84c408dcf, type: 3}
+  - {fileID: 21300000, guid: 0a085730544d2447489ee5d56800ac26, type: 3}
+  - {fileID: 21300000, guid: 1c71954022cc14472acdd27e8f55edbe, type: 3}
+  - {fileID: 21300000, guid: c70d89504f8114a3d8c3ba6d87996bb0, type: 3}
+  - {fileID: 21300000, guid: 4f9bcd70531df4711943c95abe309935, type: 3}
+  - {fileID: 21300000, guid: 6d75e8806bbc14e13beaef3ddc4f5797, type: 3}
+  - {fileID: 21300000, guid: 762fc3e0c887f486c88b33057b6171ce, type: 3}
+  - {fileID: 21300000, guid: 98c781f0052be457abb30ce42dd3d098, type: 3}
+  - {fileID: 21300000, guid: f597645128b0c462b8a0419f4ce97bcc, type: 3}
+  - {fileID: 21300000, guid: 73db23e1eae214ec2b89a94f1a93a89c, type: 3}
+  - {fileID: 21300000, guid: 219237e1cf3bb414ca4f18c90b32af4b, type: 3}
+  - {fileID: 21300000, guid: 22d5fae1e1b694a1a85c0395b01d793d, type: 3}
+  - {fileID: 21300000, guid: b88ad772e369c4d0286bd7abe95f5aaa, type: 3}
+  - {fileID: 21300000, guid: 7481b82342f6c49ee98cb3c24ba147b5, type: 3}
+  - {fileID: 21300000, guid: 056e3c7321be0409299c28f12bf5758c, type: 3}
+  - {fileID: 21300000, guid: e3156245f09ff490e9a5f3489b0a3207, type: 3}
+  - {fileID: 21300000, guid: 8bc1cc95ee6884bdbb568112474e7f6a, type: 3}
+  - {fileID: 21300000, guid: b51f72d678c244f18b8dea879ac05899, type: 3}
+  - {fileID: 21300000, guid: fc1159177ae014fa1aa54be4b48f4ef7, type: 3}
+  - {fileID: 21300000, guid: 1aa424971a14b47be9b0c9bf032f129a, type: 3}
+  - {fileID: 21300000, guid: 64112f083423c45df88985786aaaf902, type: 3}
+  - {fileID: 21300000, guid: c89e98d8ed298490dbcf1be8ffd1b06b, type: 3}
+  - {fileID: 21300000, guid: 947670393325e46a4a7004ff16bdd019, type: 3}
+  - {fileID: 21300000, guid: 74bfb6e9b1b76440380bcf55a1cc4b9f, type: 3}
+  - {fileID: 21300000, guid: c8386afabf5e54630bc387263e4a443c, type: 3}
+  - {fileID: 21300000, guid: 71dfa1ab301b5442caa8b9932e89c60a, type: 3}
+  - {fileID: 21300000, guid: 2ab0dadbf04e049678249ed6e5b76579, type: 3}
+  - {fileID: 21300000, guid: 5ae87aebb57b245b0aeb7f7ea396b02f, type: 3}
+  - {fileID: 21300000, guid: 1758ddfb31c7844baad5b85ae7fccd6c, type: 3}
+  - {fileID: 21300000, guid: eb13de3ce6b404862978bc43a9933bda, type: 3}
+  - {fileID: 21300000, guid: d46f1b4c147c44f538476629cc6b9740, type: 3}
+  - {fileID: 21300000, guid: 44bf7fbc7c75d4ac3b9862b4eb3f8519, type: 3}
+  - {fileID: 21300000, guid: c88dae5d88ef84dc1b101dbc105aac4a, type: 3}
+  - {fileID: 21300000, guid: af4f8d9d94f9c49e2b35c0fe5fab937a, type: 3}
+  - {fileID: 21300000, guid: b65232adf79f740a59f82435306e8c08, type: 3}
+  - {fileID: 21300000, guid: 50825edd09a42499faf7459843fe82c6, type: 3}
+  - {fileID: 21300000, guid: e22a17edaa03a4e71a53b2194676f3de, type: 3}
+  - {fileID: 21300000, guid: f949592eccc974886b9fad387ad51f50, type: 3}
+  - {fileID: 21300000, guid: 4f0a613ef5baa4be6a3ed6c2e1fa0ffc, type: 3}
+  - {fileID: 21300000, guid: 70dae97e41e784a9eb28efdf8b21ae2e, type: 3}
+  - {fileID: 21300000, guid: cbab80eef70954704bd24a42f99ae59b, type: 3}
+  - {fileID: 21300000, guid: 7f6780feb63104b268c3e6db2113a543, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - progress_bar_bluedark
+  - gradient_5
+  - progress_bar_bluelight
+  - progress_bar_red
+  - _progress_bar_background
+  - progress_bar_pink
+  - gradient_5
+  - progress_bar_yellow
+  - gradient_7
+  - gradient_1
+  - progress_bar_corner_pinkdark
+  - gradient_3
+  - progress_bar_corner_yellow
+  - progress_bar_purple
+  - gradient_2
+  - progress_bar_white
+  - progress_bar_corner_purple
+  - progress_bar_corner_bluelight
+  - gradient_6
+  - progress_bar_blue_2
+  - gradient_4
+  - progress_bar_bluemoredark
+  - progress_bar_corner_orange
+  - progress_bar_pinkdark
+  - progress_bar_corner_turquoise
+  - progress_bar_corner_white
+  - progress_bar_corner_blue
+  - gradient_4
+  - progress_bar_corner_bluemoredark
+  - background
+  - progress_bar_orange
+  - gradient_1
+  - progress_bar_green
+  - progress_bar_corner_black
+  - progress_bar_blue
+  - progress_bar_corner_red
+  - gradient_2
+  - progress_bar_corner_green
+  - gradient_3
+  - progress_bar_corner_blue_2
+  - progress_bar_corner_bluedark
+  - progress_bar_corner_pink
+  - progress_bar_turquoise
+  - progress_bar_black
+  m_Tag: progress_bars
+  m_IsVariant: 0

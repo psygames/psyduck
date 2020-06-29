@@ -16,4 +16,5 @@ urlpatterns = [
     path('download_get', views.download_get),
     path('download_list', views.download_list),
     path('download_find', views.download_find),
+    path('recover_action', views.recover_action),
 ]

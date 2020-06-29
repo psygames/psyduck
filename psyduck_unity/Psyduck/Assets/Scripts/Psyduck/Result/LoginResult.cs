@@ -9,13 +9,13 @@ namespace Psyduck
 {
     public class LoginResult : Result
     {
-        public UserInfo info;
+        public CsdnDetail info;
 
         protected override void ParseResult()
         {
             base.ParseResult();
 
-            info = new UserInfo();
+            info = new CsdnDetail();
             info.Parse(jsonResult);
         }
     }

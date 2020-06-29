@@ -362,3 +362,18 @@ def download_list(uid, csdn, index):
         r = _download_cut(r)
         _build_res.append(r)
     return _success_build(_build_res)
+
+
+def recover_action(uid):
+    if uid == '':
+        return _error_uid_empty()
+
+    _res = db.act.find({'uid': uid, '$nor': [{'state': 'fail'}, {'state': 'done'}, {'action': 'login_verify_get'},
+                                             {'action': 'login_verify_set'}]})
+    _build_res = []
+    for r in _res:
+        if r['id'].endswith('_auto'):
+            continue
+        br = {'action': r['action'], 'token': r['id'], 'state': r['state']}
+        _build_res.append(br)
+    return _success_build(_build_res)

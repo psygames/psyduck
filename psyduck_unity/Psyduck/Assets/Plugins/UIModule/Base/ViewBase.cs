@@ -8,7 +8,7 @@ public enum UILayer
     Bottom = 2,
 }
 
-public abstract class ViewBase : MonoBehaviour
+public abstract class ViewBase : ButtonEventReceiver
 {
     protected RectTransform mRectTransform;
     public RectTransform rectTransform

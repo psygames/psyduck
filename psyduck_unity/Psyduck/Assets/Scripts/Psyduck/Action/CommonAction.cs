@@ -66,5 +66,18 @@ namespace Psyduck
                 callback?.Invoke(res);
             });
         }
+
+        public void RecoverAction(string uid, Action<RecoverActionResult> callback)
+        {
+            var postData = new Dictionary<string, string>();
+            postData["uid"] = uid;
+            Post("recover_action", postData, (content) =>
+            {
+                var obj = JsonMapper.ToObject(content);
+                var res = new RecoverActionResult();
+                res.Parse(obj);
+                callback?.Invoke(res);
+            });
+        }
     }
 }
