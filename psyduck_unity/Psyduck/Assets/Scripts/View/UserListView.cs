@@ -16,18 +16,21 @@ public class UserListView : ViewBase
 
     private void Refresh()
     {
+        Busy.Show();
         action.UserList(DeviceID.UUID, OnUserList);
     }
 
     private void OnUserList(UserListResult res)
     {
+        Busy.Hide();
         if (res.isOK)
         {
             group.SetData<UserItem, UserInfo>(res.userInfos);
         }
         else
         {
-            Debug.LogError(res.errorMsg);
+            // Debug.LogError(res.errorMsg);
+            Toast.Error(res.errorMsg);
         }
     }
 
@@ -39,6 +42,5 @@ public class UserListView : ViewBase
     public void OnClickClose()
     {
         Close();
-        UIManager.Open<MainView>();
     }
 }

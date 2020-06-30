@@ -72,8 +72,8 @@ public class UIManager : Singleton<UIManager>
         }
 
         view = loadViewFunc?.Invoke(viewType.Name);
-        view = Instantiate(view);
         view.gameObject.SetActive(false);
+        view = Instantiate(view);
         mCachedViews.Add(view);
         return view;
     }

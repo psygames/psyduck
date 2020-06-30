@@ -23,10 +23,9 @@ public class LoginView : ViewBase
     public RawImage qr;
     public InputField phone;
     public InputField code;
-    public Text getHint;
-    public Text setHint;
+    public Text verifyHint;
+    public RadioObjects radioVerifyGet;
     public Text failText;
-    public GameObject busy;
 
     private State state;
     private LoginAction action = new LoginAction();
@@ -42,6 +41,8 @@ public class LoginView : ViewBase
 
     private void OnEnable()
     {
+        verifyHintText = "";
+        verifyHint.text = "";
         RecoverAction();
         Update();
     }
@@ -71,6 +72,7 @@ public class LoginView : ViewBase
         });
     }
 
+    private string verifyHintText = "";
     private State lastState = State.Prepare;
     private void Action_onProcess(LoginStateResult obj)
     {
@@ -86,14 +88,22 @@ public class LoginView : ViewBase
         else if (obj.isVerifyGet || obj.isVerifyGetHint)
         {
             state = State.VerifyGet;
-            if (obj.isVerifyGetHint)
-                getHint.text = obj.message;
+            if (obj.isVerifyGetHint && verifyHintText != obj.message)
+            {
+                verifyHintText = obj.message;
+                verifyHint.text = verifyHintText;
+                HideBusy();
+            }
         }
         else if (obj.isVerifySet || obj.isVerifySetHint)
         {
             state = State.VerifySet;
-            if (obj.isVerifySetHint)
-                setHint.text = obj.message;
+            if (obj.isVerifySetHint && verifyHintText != obj.message)
+            {
+                verifyHintText = obj.message;
+                verifyHint.text = verifyHintText;
+                HideBusy();
+            }
         }
         else if (obj.isWaitForDone)
         {
@@ -110,24 +120,31 @@ public class LoginView : ViewBase
         }
 
         if (lastState != state)
+        {
+            verifyHintText = "";
             HideBusy();
+        }
 
         lastState = state;
     }
 
     private void Action_onFinish(LoginResult obj)
     {
-        Debug.Log("登陆完成");
+        //Debug.Log("登陆完成");
+        Close();
+        Toast.Show("登陆完成");
     }
 
     private void Action_onError(Result obj)
     {
-        Debug.LogError("发生错误: " + obj.errorMsg);
+        HideBusy();
+        //Debug.LogError("发生错误: " + obj.errorMsg);
+        Toast.Error("错误:" + obj.errorMsg);
     }
 
     private void Action_onBegin(TokenResult obj)
     {
-        Debug.Log("开始登陆");
+        //Debug.Log("开始登陆");
     }
 
     public void OnClickStart()
@@ -138,38 +155,42 @@ public class LoginView : ViewBase
 
     public void OnClickVerifyGet()
     {
+        if (state != State.VerifyGet)
+            return;
+        verifyHint.text = "";
         action.VerifyGet(phone.text);
-        ShowBusy(20);
+        ShowBusy(10);
     }
 
     public void OnClickVerifySet()
     {
+        if (state != State.VerifySet)
+            return;
+        verifyHint.text = "";
         action.VerifySet(code.text);
-        ShowBusy(20);
+        ShowBusy(10);
     }
 
     public void OnClickClose()
     {
         Close();
-        UIManager.Open<MainView>();
     }
 
     private void Update()
     {
+        radioVerifyGet.Radio(state == State.VerifySet);
         radio.Radio((int)state);
-
-        busyTime -= Time.deltaTime;
-        busy.SetActive(busyTime > 0);
     }
 
-    float busyTime = 0;
-    private void ShowBusy(int timeout = 5)
+    private void ShowBusy(int timeout = 10)
     {
-        busyTime = timeout;
+        if (isActiveAndEnabled)
+            Busy.Show(timeout);
     }
 
     private void HideBusy()
     {
-        busyTime = 0;
+        if (isActiveAndEnabled)
+            Busy.Hide();
     }
 }

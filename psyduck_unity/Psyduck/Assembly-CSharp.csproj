@@ -92,10 +92,12 @@
     <Compile Include="Assets\Scripts\Psyduck\Result\UserListResult.cs" />
     <Compile Include="Assets\Scripts\System\GameManager.cs" />
     <Compile Include="Assets\Scripts\System\UnityExtension.cs" />
+    <Compile Include="Assets\Scripts\View\BusyView.cs" />
     <Compile Include="Assets\Scripts\View\DownloadView.cs" />
     <Compile Include="Assets\Scripts\View\LoginView.cs" />
     <Compile Include="Assets\Scripts\View\MainView.cs" />
     <Compile Include="Assets\Scripts\View\NavView.cs" />
+    <Compile Include="Assets\Scripts\View\ToastView.cs" />
     <Compile Include="Assets\Scripts\View\UserItem.cs" />
     <Compile Include="Assets\Scripts\View\UserListView.cs" />
     <Reference Include="Unity.PackageManagerUI.Editor">

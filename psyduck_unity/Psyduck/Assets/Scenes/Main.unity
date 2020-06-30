@@ -165,7 +165,7 @@ MonoBehaviour:
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 1080, y: 1920}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 1
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -307,7 +307,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2bfca6870054ed4cba5f36742baf6e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  host: http://127.0.0.1:8000/psyduck
+  host: http://39.105.150.229:8748/psyduck
 --- !u!4 &782296228
 Transform:
   m_ObjectHideFlags: 0
