@@ -3,11 +3,11 @@ from core import db
 import qq
 
 commands = {
-    'search': {'name': '搜索资源', 'cmd': ['-find', '搜索'], 'more': True, 'display': True},
-    'info': {'name': '查看信息', 'cmd': ['-info', '查看'], 'more': True, 'display': True},
-    'mine': {'name': '我的信息', 'cmd': ['-mine', '我的'], 'more': False, 'display': True},
-    'help': {'name': '查看帮助', 'cmd': ['-help', '帮助'], 'more': True, 'display': True},
-    'more': {'name': '更多信息', 'cmd': ['-more', '更多'], 'more': False, 'display': False},
+    'find': {'name': '搜索资源', 'cmd': ['搜索', '-find'], 'more': True, 'display': True},
+    'info': {'name': '查看信息', 'cmd': ['查看', '-info'], 'more': True, 'display': True},
+    'mine': {'name': '我的信息', 'cmd': ['我的', '-mine'], 'more': False, 'display': True},
+    'help': {'name': '查看帮助', 'cmd': ['帮助', '-help'], 'more': True, 'display': True},
+    'more': {'name': '更多信息', 'cmd': ['更多', '-more'], 'more': False, 'display': False},
 }
 
 cmd = ''
@@ -15,17 +15,39 @@ arg = ''
 index = 0
 msg_tail = ''
 
+_find_result = []
 
-def _search(keyword):
+
+def _is_all_number(_str: str):
+    if _str is None or _str == '':
+        return False
+    for a in _str:
+        if not '0' <= a <= '9':
+            return False
+    return True
+
+
+def _find(_arg):
     global msg_tail
-    result = db.download_search(keyword, index, 3)
+    global _find_result
+    result = db.download_search(_arg, index, 10)
+    _find_result = result
     msg = mb.build_search(result, index)
-    msg_tail += '\n-info 1 查看文件信息'
+    msg_tail += '\n输入：查看 1 查看文件信息'
     return msg
 
 
 def _info(_arg):
-    pass
+    if not _is_all_number(_arg):
+        return '参数错误！'
+    i = int(_arg)
+    if 0 < i <= len(_find_result):
+        result = _find_result[i - 1]
+    else:
+        result = db.download_get(_arg)
+    if result is None:
+        return '未找到文件信息！'
+    return mb.build_info(result, index)
 
 
 def _download(_arg):
@@ -40,9 +62,9 @@ def _help(_arg):
             continue
         name = commands[c]['name']
         _cmd = commands[c]['cmd'][0]
-        msg += f'● {name}\t {_cmd}\n'
+        msg += f'● {name}：{_cmd}\n'
     msg = msg[:-1]
-    msg_tail = '\n* 输入CSDN下载页链接下载'
+    msg_tail = '\n*输入CSDN下载地址下载'
     return msg
 
 
@@ -66,9 +88,13 @@ def _handle(_cmd, _arg):
     msg_tail = ''
     func = getattr(qq.command, target_func)
     msg = func(_arg)
+    if _cmd == 'more':
+        return msg
+    if len(msg.split('\n')) <= 1:
+        return msg
+    msg += mb.build_separator(msg)
     if commands[_cmd]['more']:
-        msg += mb.separator()
-        msg += '\n-more 获取更多信息'
+        msg += '\n输入：更多 获取更多信息'
     if msg_tail != '':
         msg += f'{msg_tail}'
     msg += mb.build_tails()
@@ -81,15 +107,20 @@ def handle(_cmd, _arg) -> str:
     global index
 
     right_cmd = False
+    sent_cmd = ''
     for c in commands:
-        if _cmd in commands[c]['cmd']:
-            right_cmd = True
-            cmd = c
-            break
+        if _cmd not in commands[c]['cmd']:
+            continue
+        right_cmd = True
+        sent_cmd = c
+        break
 
     if not right_cmd:
         return ''
 
-    arg = _arg
-    index = 0
-    return _handle(cmd, arg)
+    if sent_cmd != 'more':
+        cmd = sent_cmd
+        arg = _arg
+        index = 0
+
+    return _handle(sent_cmd, arg)

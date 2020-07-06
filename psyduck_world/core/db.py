@@ -135,6 +135,7 @@ def _build_query(keywords, op, tag):
 
 
 def _print_log(keywords, count, step, st):
+    return 
     import time
     print(f'search keys: {keywords}, count: {count}, cost: {time.time() - st:.2f}s, step: {step}')
 

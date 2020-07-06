@@ -2,30 +2,46 @@ from qq import config
 from qq import short_url
 
 
-def separator():
-    return '\n' + '——' * 6
-
-
-def separator_long():
-    return '\n' + '——' * 12
+def separator(n: int = 10):
+    return '\n' + '-' * n
 
 
 def _cut_text(text, size):
-    if _text_size(text) <= size:
-        return text
     for i in range(len(text)):
-        if _text_size(text[0:i]) >= size:
-            return text[0:i]
-    return text + '...'
+        if _text_size(text[0:i + 1]) >= size:
+            return text[0:i + 1] + '...'
+    return text
+
+
+def _char_size(c):
+    if u'\u4e00' <= c <= u'\u9fa5':
+        return 2.167
+    else:
+        _size = {'a': 1.167, 'b': 1.333, 'c': 1.167, 'd': 1.333, 'e': 1.167, 'f': 0.833, 'g': 1.333, 'h': 1.333,
+                 'i': 0.5, 'j': 0.5, 'k': 1.167, 'l': 0.5, 'm': 2, 'n': 1.333, 'o': 1.333, 'p': 1.333, 'q': 1.333,
+                 'r': 0.833, 's': 1, 't': 0.833, 'u': 1.333, 'v': 1.167, 'w': 1.667, 'x': 1.167, 'y': 1.167, 'z': 1,
+                 'A': 1.5, 'B': 1.333, 'C': 1.5, 'D': 1.667, 'E': 1.167, 'F': 1.167, 'G': 1.667, 'H': 1.667, 'I': 0.667,
+                 'J': 0.833, 'K': 1.333, 'L': 1.167, 'M': 2.167, 'N': 1.833, 'O': 1.833, 'P': 1.333, 'Q': 1.833,
+                 'R': 1.333, 'S': 1.333, 'T': 1.167, 'U': 1.667, 'V': 1.5, 'W': 2.167, 'X': 1.333, 'Y': 1.333,
+                 'Z': 1.333,
+                 '.': 0.5, ',': 0.5, ':': 0.5, '[': 0.667, ']': 0.667, '(': 0.667, ')': 0.667, '{': 0.667, '}': 0.667,
+                 '+': 1.667, '=': 1.667,
+                 '~': 1.667, '!': 0.667, "@": 2.167, '#': 1.333, '$': 1.333, "%": 2, '^': 1.667, '&': 1.833, '*': 1,
+                 '_': 1, '|': 0.667, '\\': 0.833, '/': 1, '?': 1, '<': 1.667, '>': 1.667, '"': 1, '\'': 0.5, ';': 0.5,
+                 }
+        if c in _size:
+            return _size[c]
+    return 1
 
 
 def _text_size(text):
     if text == '':
         return 0
-    txt_len = len(text)
-    txt_len_utf8 = len(text.encode('utf-8'))
-    size = int((txt_len_utf8 - txt_len) / 4 + txt_len / 2)
-    return size
+    txt_len = 0
+    for c in text:
+        txt_len += _char_size(c)
+    import math
+    return math.ceil(txt_len)
 
 
 def _build_url(url):
@@ -50,6 +66,13 @@ def build_tails():
     return ''
 
 
+def build_separator(msg):
+    _len = 0
+    for m in msg.split('\n'):
+        _len = max(_len, _text_size(m))
+    return separator(_len)
+
+
 def _build_info_detail(result):
     info = result['info']
     msg = info['title']
@@ -72,7 +95,7 @@ def build_info(result, index):
         return _build_info_detail(result)
     info = result['info']
     title = info['title']
-    title = _cut_text(title, 20)
+    title = _cut_text(title, 24)
     msg = title
     msg += '\n评分：{}{}'.format('★' * info['star'], '☆' * (5 - info['star']))
     msg += '\n所需：{} 积分/C币'.format(info['point'])
@@ -85,12 +108,13 @@ def build_search(result, index):
     if len(result) <= 0:
         return '未找到符合条件的结果。'
     msg = '搜索结果（{0}~{1}）：'.format(index + 1, index + len(result))
+    rank = 1
     for d in result:
         info = d['info']
         title = info['title']
-        title = _cut_text(title, 16)
-        _id_sep = '  ' * (8 - len(str(d['id'])))
-        msg += '\nID({}){}：{}'.format(d['id'], _id_sep, title)
+        title = _cut_text(title, 24)
+        msg += f'\n{rank}. {title}'
+        rank += 1
     return msg
 
 

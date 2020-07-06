@@ -89,6 +89,7 @@ async def handle_msg_group(event: Event):
     if msg == '':
         return
     await bot.send(event, msg)
+    return
 
     if cmd == '-help' or cmd == '-?':
         msg = '● 个人信息　-personal'
