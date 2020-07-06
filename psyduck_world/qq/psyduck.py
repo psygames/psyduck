@@ -1,6 +1,4 @@
 from aiocqhttp import CQHttp
-import db_helper
-import helper
 import config
 import short_url
 
