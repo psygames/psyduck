@@ -98,7 +98,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74ef7f009c6044adb9f13064a5673066, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  color: {r: 0, g: 0, b: 0, a: 0.8}
+  color: {r: 1, g: 1, b: 1, a: 0}
   closePanel: 0
 --- !u!1 &8441832533183149674
 GameObject:
@@ -160,7 +160,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.21568629, g: 0.2784314, b: 0.33333334, a: 0.8862745}
   m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
