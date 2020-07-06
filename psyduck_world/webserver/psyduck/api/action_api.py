@@ -285,57 +285,6 @@ def download_get(_id):
     return _success_build(_d)
 
 
-def _build_query(keywords, op, tag):
-    query = {f'${op}': []}
-    for k in keywords:
-        k = k.strip('/i')
-        k = k.strip('/')
-        query[f'${op}'].append({f'{tag}': {'$regex': f'{k}', '$options': '$i'}})
-    return query
-
-
-def _print_log(keywords, count, step, st):
-    import time
-    print(f'search keys: {keywords}, count: {count}, cost: {time.time() - st:.2f}s, step: {step}')
-
-
-def build_result(*args, ):
-    result = []
-    for r in args:
-        for ri in r:
-            _d = _download_cut(ri)
-            result.append(_d)
-    return result
-
-
-def _download_search(keywords, limit, skip):
-    import time
-    __st = time.time()
-    r1 = db.download.find(_build_query(keywords, 'and', 'info.title')).skip(skip).limit(limit)
-    raw_count = r1.count()
-    count = r1.count(with_limit_and_skip=True)
-    _print_log(keywords, count, 1, __st)
-    if count >= limit:
-        return build_result(r1)
-
-    __st = time.time()
-    _skip = max(skip - raw_count, 0)
-    r2 = db.download.find(_build_query(keywords, 'and', 'brief')).skip(_skip).limit(limit - count)
-    raw_count += r2.count()
-    count += r2.count(with_limit_and_skip=True)
-    _print_log(keywords, count, 2, __st)
-    if count >= limit:
-        return build_result(r1, r2)
-
-    __st = time.time()
-    _skip = max(skip - raw_count, 0)
-    r3 = db.download.find(_build_query(keywords, 'or', 'title')).skip(_skip).limit(limit - count)
-    raw_count += r3.count()
-    count += r3.count(with_limit_and_skip=True)
-    _print_log(keywords, count, 3, __st)
-    return build_result(r1, r2, r3)
-
-
 def download_find(keyword, index):
     if keyword == '':
         return _error_xxx_empty('keyword')
@@ -343,8 +292,11 @@ def download_find(keyword, index):
     keywords = jieba.analyse.extract_tags(keyword, 3)
     if len(keywords) == 0:
         keywords.append(keyword)
-    result = _download_search(keywords, 10, index)
-    return _success_build(result)
+    result = db.download_search(keywords, index)
+    cut_result = []
+    for item in result:
+        cut_result.append(_download_cut(item))
+    return _success_build(cut_result)
 
 
 def download_list(uid, csdn, index):

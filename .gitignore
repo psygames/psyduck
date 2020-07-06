@@ -134,19 +134,20 @@ psyduck_world/caches
 psyduck_unity/Psyduck/Library/
 psyduck_unity/Psyduck/Temp/
 psyduck_unity/Psyduck/obj/
-psyduck_world/qq/CoolQ Air/app/*
-!psyduck_world/qq/CoolQ Air/app/io.github.richardchien.coolqhttpapi.cpk
-psyduck_world/qq/CoolQ Air/bin/*
-!psyduck_world/qq/CoolQ Air/bin/libeay32.dll
-!psyduck_world/qq/CoolQ Air/bin/zlib1.dll
 
-psyduck_world/qq/CoolQ Air/data/*
-!psyduck_world/qq/CoolQ Air/data/app/
-psyduck_world/qq/CoolQ Air/data/app/*
-!psyduck_world/qq/CoolQ Air/data/app/io.github.richardchien.coolqhttpapi/
-psyduck_world/qq/CoolQ Air/data/app/io.github.richardchien.coolqhttpapi/*
-!psyduck_world/qq/CoolQ Air/data/app/io.github.richardchien.coolqhttpapi/config/
-psyduck_world/qq/CoolQ Air/data/app/io.github.richardchien.coolqhttpapi/config/*
-!psyduck_world/qq/CoolQ Air/data/app/io.github.richardchien.coolqhttpapi/config/3069171492.json
-psyduck_world/qq/CoolQ Air/conf/*
-!psyduck_world/qq/CoolQ Air/conf/CQP.cfg
+# CoolQ - ignore
+psyduck_world/qq/CoolQ/app/*
+!psyduck_world/qq/CoolQ/app/io.github.richardchien.coolqhttpapi.cpk
+psyduck_world/qq/CoolQ/bin/*
+!psyduck_world/qq/CoolQ/bin/libeay32.dll
+!psyduck_world/qq/CoolQ/bin/zlib1.dll
+psyduck_world/qq/CoolQ/data/*
+!psyduck_world/qq/CoolQ/data/app/
+psyduck_world/qq/CoolQ/data/app/*
+!psyduck_world/qq/CoolQ/data/app/io.github.richardchien.coolqhttpapi/
+psyduck_world/qq/CoolQ/data/app/io.github.richardchien.coolqhttpapi/*
+!psyduck_world/qq/CoolQ/data/app/io.github.richardchien.coolqhttpapi/config/
+psyduck_world/qq/CoolQ/data/app/io.github.richardchien.coolqhttpapi/config/*
+!psyduck_world/qq/CoolQ/data/app/io.github.richardchien.coolqhttpapi/config/general.json
+psyduck_world/qq/CoolQ/conf/*
+!psyduck_world/qq/CoolQ/conf/CQP.cfg

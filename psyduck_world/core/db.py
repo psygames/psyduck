@@ -1,3 +1,5 @@
+import jieba
+import jieba.analyse
 import pymongo
 from datetime import datetime
 from core import db_setting
@@ -60,8 +62,7 @@ def act_init():
 
 
 def act_reset():
-    act.update_many({'$nor': [{'state': 'fail'}, {'state': 'done'}]}
-                    , {'$set': {'state': 'fail', 'result': 'reset'}})
+    act.update_many({'$nor': [{'state': 'fail'}, {'state': 'done'}]}, {'$set': {'state': 'fail', 'result': 'reset'}})
 
 
 def act_create(_id, uid, action, state, message='', result=''):
@@ -114,3 +115,61 @@ def download_set_share_url(_id, share_url):
 def download_get(_id):
     data = download.find_one({'id': _id})
     return data
+
+
+def build_result(*args, ):
+    result = []
+    for r in args:
+        for ri in r:
+            result.append(ri)
+    return result
+
+
+def _build_query(keywords, op, tag):
+    query = {f'${op}': []}
+    for k in keywords:
+        k = k.strip('/i')
+        k = k.strip('/')
+        query[f'${op}'].append({f'{tag}': {'$regex': f'{k}', '$options': '$i'}})
+    return query
+
+
+def _print_log(keywords, count, step, st):
+    import time
+    print(f'search keys: {keywords}, count: {count}, cost: {time.time() - st:.2f}s, step: {step}')
+
+
+def _download_search(keywords, limit, skip):
+    import time
+    __st = time.time()
+    r1 = db.download.find(_build_query(keywords, 'and', 'info.title')).skip(skip).limit(limit)
+    raw_count = r1.count()
+    count = r1.count(with_limit_and_skip=True)
+    _print_log(keywords, count, 1, __st)
+    if count >= limit:
+        return build_result(r1)
+
+    __st = time.time()
+    _skip = max(skip - raw_count, 0)
+    r2 = db.download.find(_build_query(keywords, 'and', 'info.description')).skip(_skip).limit(limit - count)
+    raw_count += r2.count()
+    count += r2.count(with_limit_and_skip=True)
+    _print_log(keywords, count, 2, __st)
+    if count >= limit:
+        return build_result(r1, r2)
+
+    __st = time.time()
+    _skip = max(skip - raw_count, 0)
+    r3 = db.download.find(_build_query(keywords, 'or', 'info.title')).skip(_skip).limit(limit - count)
+    raw_count += r3.count()
+    count += r3.count(with_limit_and_skip=True)
+    _print_log(keywords, count, 3, __st)
+    return build_result(r1, r2, r3)
+
+
+def download_search(keyword, index, length=10):
+    keywords = jieba.analyse.extract_tags(keyword, 3)
+    if len(keywords) == 0:
+        keywords.append(keyword)
+    result = _download_search(keywords, length, index)
+    return result

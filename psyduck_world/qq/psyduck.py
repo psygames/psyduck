@@ -1,9 +1,10 @@
-from aiocqhttp import CQHttp
-import config
-import short_url
+from aiocqhttp import CQHttp, Event
+from qq import config
+from qq import short_url
+from qq import command
+from core import db
 
-bot = CQHttp(access_token='123',
-             secret='abc')
+bot = CQHttp(access_token=config.token, secret=config.secret)
 
 
 def find_csdn_download_url(text):
@@ -31,68 +32,63 @@ def find_csdn_download_id(text):
 
 
 last_cmd = ''
-last_arg_int = 0
-last_arg_str = ''
+last_index = 0
 
 
 def is_at_me(message):
-    if message.find('[CQ:at,qq=%s]' % config.default_qq) != -1:
+    if message.find('[CQ:at,qq=%s]' % config.qq_num) != -1:
         return True
     return False
 
 
 def rm_at_me(message):
-    return message.replace('[CQ:at,qq=%s]' % config.default_qq, '')
+    return message.replace('[CQ:at,qq=%s]' % config.qq_num, '')
+
+
+def _is_all_number(_str: str):
+    if _str is None or _str == '':
+        return False
+    for a in _str:
+        if not '0' <= a <= '9':
+            return False
+    return True
 
 
 @bot.on_message('private')
-async def handle_msg_private(context):
-    qq_num = int(context['sender']['user_id'])
+async def handle_msg_private(event: Event):
+    qq_num = int(event.sender['user_id'])
     if qq_num in config.admin_list:
-        await handle_msg_group(context)
+        await handle_msg_group(event)
     else:
-        await bot.send(context, "您没有权限使用大黄鸭，请加群：%s" % config.default_group)
+        await bot.send(event, f"您没有权限使用大黄鸭，请加群：{config.group_num}")
 
 
 @bot.on_message('group')
-async def handle_msg_group(context):
+async def handle_msg_group(event: Event):
     global last_cmd
-    global last_arg_str
-    global last_arg_int
-    message = context['message']
+    global last_index
 
-    if config.need_at_me:
-        if not is_at_me(message):
-            return
+    message = event.message
+
     if is_at_me(message):
         message = rm_at_me(message)
 
     message = message.strip()
-    cmd_args = message.split(' ')
-    cmd = cmd_args[0]
-    args = cmd_args[1:] if len(cmd_args) > 1 else []
+    cmd = message.split(' ')[0]
+    arg = message[len(cmd):].strip()
 
-    def is_all_number(_str: str):
-        if _str is None or _str == '':
-            return False
-        for a in _str:
-            if not '0' <= a <= '9':
-                return False
-        return True
+    qq_num = event.sender['user_id']
+    qq_name = event.sender['nickname']
+    if 'card' in event.sender and event.sender['card'] != '':
+        qq_name = event.sender['card']
+    qq_group = -1
+    if 'group_id' in event:
+        qq_group = event['group_id']
 
-    arg_int = int(args[0]) if len(args) > 0 and is_all_number(args[0]) else 0
-    arg_int_2 = int(args[1]) if len(args) > 1 and is_all_number(args[1]) else 0
-    arg_str = args[0] if len(args) > 0 else ''
-
-    qq_num = str(context['sender']['user_id'])
-    qq_name = context['sender']['nickname']
-    if 'card' in context['sender'] and context['sender']['card'] != '':
-        qq_name = context['sender']['card']
-    qq_group = '-1'
-    if 'group_id' in context:
-        qq_group = str(context['group_id'])
-    if qq_group != -1 and qq_group not in config.group_list:
+    msg = command.handle(cmd, arg)
+    if msg == '':
         return
+    await bot.send(event, msg)
 
     if cmd == '-help' or cmd == '-?':
         msg = '● 个人信息　-personal'
@@ -102,45 +98,35 @@ async def handle_msg_group(context):
         msg += '\n● 更多信息　-more'
         msg += sep_s()
         msg += '\n* 输入CSDN下载页链接下载'
-        msg += source_code_tail()
-        msg += donate_tail()
-        msg += export_tail()
+        msg += '\n* 输入CSDN下载页链接下载'
+        msg += '\n* 输入CSDN下载页链接下载'
+        msg += '\n* 输入CSDN下载页链接下载'
+        msg += '\n* 输入CSDN下载页链接下载'
+        msg += '\n* 输入CSDN下载页链接下载'
+        msg += '\n* 输入CSDN下载页链接下载'
+        # msg += source_code_tail()
+        # msg += donate_tail()
+        # msg += export_tail()
         last_cmd = cmd
-        await bot.send(context, msg)
+        print(len(msg))
+        await bot.send(event, msg)
 
     if cmd == '-user':
-        await bot.send(context, '查询用户信息中...')
-        helper.init()
-        info = helper.get_user_info()
-        helper.dispose()
-        if info is None:
-            msg = '获取用户信息失败！'
-        else:
-            msg = '{}'.format(info['name'])
-            if info['vip']:
-                msg += '【VIP】'
-                msg += '\n剩余次数：{}次'.format(info['remain'])
-                msg += '\n有效期至：{}'.format(info['date'][:10])
-            else:
-                msg += '\n剩余积分：{}积分'.format(info['remain'])
-        await bot.send(context, msg)
+        await bot.send(event, '功能开发中...')
 
     if cmd == '-rank':
-        result = db_helper.rank_qq(arg_int)
-        msg = build_rank_msg(result, arg_int)
-        last_cmd = cmd
-        last_arg_int = arg_int
-        await bot.send(context, msg)
+        await bot.send(event, '功能开发中...')
 
     if cmd == '-find':
-        result = db_helper.find_all(arg_str, arg_int_2)
-        count = db_helper.count_all(arg_str)
-        msg = build_find_msg(result, count, arg_int_2)
         last_cmd = cmd
-        last_arg_str = arg_str
-        last_arg_int = arg_int_2
-        await bot.send(context, msg)
+        last_index = 0
+        result = db.download_search(arg, last_index)
+        msg = build_find_msg(result, last_index)
+        print(len(msg))
+        await bot.send(event, msg)
 
+
+'''
     if cmd == '-info':
         result = db_helper.get_download(arg_int)
         if result is not None:
@@ -226,6 +212,7 @@ async def handle_msg_group(context):
             await bot.send(context, msg)
         finally:
             helper.dispose()
+'''
 
 
 def source_code_tail():
@@ -246,60 +233,61 @@ def export_tail():
     return ''
 
 
-def build_download_detail_info(result: db_helper.Download):
-    msg = result.title
-    msg += '\n评分\t：{}{}'.format('★' * result.stars, '☆' * (5 - result.stars))
-    msg += '\n所需\t：{} 积分/C币'.format(result.coin)
-    msg += '\n大小\t：{}'.format(result.size)
-    msg += '\n下载\t：{}'.format(build_url(result.id))
-    msg += '\nID\t：{}'.format(result.id)
-    msg += '\n类型\t：{}'.format(result.type)
-    msg += '\n标签\t：{}'.format(result.tag)
-    msg += '\n文件名\t：{}'.format(result.filename)
-    msg += '\n下载者\t：{}({})'.format(result.qq_name, result.qq_num)
-    msg += '\n上传时间：{}'.format(result.upload_date.strftime("%Y-%m-%d %H:%M:%S"))
-    msg += '\n下载时间：{}'.format(result.created_date.strftime("%Y-%m-%d %H:%M:%S"))
-    msg += '\n原始链接：{}'.format(result.url)
-    msg += '\n详细描述：{}'.format(result.description)
+def build_tails():
+    return ''
+
+
+def build_download_detail_info(result):
+    info = result['info']
+    msg = info['title']
+    msg += '\n评分\t：{}{}'.format('★' * info['star'], '☆' * (5 - info['star']))
+    msg += '\n所需\t：{} 积分/C币'.format(info['point'])
+    msg += '\n大小\t：{}'.format(info['size'])
+    msg += '\n下载\t：{}'.format(build_url(result['share_url']))
+    msg += '\nID\t：{}'.format(result['id'])
+    msg += '\n类型\t：{}'.format(info['type'])
+    msg += '\n文件名\t：{}'.format(info['filename'])
+    msg += '\n上传时间：{}'.format(info['upload_time'].strftime("%Y-%m-%d %H:%M:%S"))
+    msg += '\n下载时间：{}'.format(result['create_time'].strftime("%Y-%m-%d %H:%M:%S"))
+    msg += '\n原始链接：{}'.format(info['url'])
+    msg += '\n详细描述：{}'.format(info['description'])
     return msg
 
 
-def build_download_info(result: db_helper.Download):
-    title = result.title
+def build_download_info(result):
+    info = result['info']
+    title = info['title']
     if text_size(title) > 20:
         title = text_sub_size(title, 20) + '...'
     msg = title
-    msg += '\n评分：{}{}'.format('★' * result.stars, '☆' * (5 - result.stars))
-    msg += '\n所需：{} 积分/C币'.format(result.coin)
-    msg += '\n大小：{}'.format(result.size)
-    msg += '\n下载：{}'.format(build_url(result.id))
+    msg += '\n评分：{}{}'.format('★' * info['star'], '☆' * (5 - info['star']))
+    msg += '\n所需：{} 积分/C币'.format(info['point'])
+    msg += '\n大小：{}'.format(info['size'])
+    msg += '\n下载：{}'.format(build_url(result['share_url']))
     msg += sep_l()
     msg += '\n-more 获取更多信息'
-    msg += donate_tail()
+    msg += build_tails()
     return msg
 
 
-def build_url(_id):
-    if db_helper.exist_download(_id):
-        dl = db_helper.get_download(_id)
-        if dl.download_url is not None and dl.download_url != '':
-            return dl.download_url
-
-    url = '{}{}.zip'.format(config.download_server_url, _id)
-    return short_url.get(url)
+def build_url(url):
+    if config.short_url:
+        return short_url.get(url)
+    return url
 
 
-def build_find_msg(result, total, start_index=0):
+def build_find_msg(result, index):
     if len(result) <= 0:
         return '未找到符合条件的结果。'
-    msg = '共{2}条搜索结果（{0}~{1}）：'.format(start_index + 1, start_index + len(result), total)
+    msg = '搜索结果（{0}~{1}）：'.format(index + 1, index + len(result))
     for d in result:
-        title = d.title
+        info = d['info']
+        title = info['title']
         _len = 16
         if text_size(title) > _len:
             title = text_sub_size(title, _len) + '...'
-        _id_sep = '  ' * (8 - len(str(d.id)))
-        msg += '\nID({}){}：{}'.format(d.id, _id_sep, title)
+        _id_sep = '  ' * (8 - len(str(d['id'])))
+        msg += '\nID({}){}：{}'.format(d['id'], _id_sep, title)
     msg += sep_l()
     msg += '\n-more 获取更多信息'
     msg += '\n-info [id] 下载/查看文件信息'
@@ -401,7 +389,7 @@ async def handle_group_increase(context):
     nickname = info['nickname']
     name = nickname if nickname else '新人'
     await bot.send(context,
-                   message='欢迎【{}】加入本群～\n友情提示：{}可以免费下载CSDN资源哦！\n-help 查看帮助'.format(name, config.default_qq_name),
+                   message='欢迎【{}】加入本群～\n友情提示：本群可以免费下载CSDN资源哦！\n-help 查看帮助'.format(name),
                    at_sender=False, auto_escape=True)
 
 
@@ -415,5 +403,7 @@ async def handle_group_request(context):
     return {'approve': False, 'reason': '请输入正确的入群口令'}
 '''
 
-if __name__ == '__main__':
-    bot.run(host='127.0.0.1', port=config.psyduck_port)
+
+def main():
+    db.init()
+    bot.run(host=config.host, port=config.port)
