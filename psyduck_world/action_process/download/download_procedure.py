@@ -94,7 +94,7 @@ class DownloadProcedure:
         res = self.helper.download(self.url, _download_callback)
 
         if not res.success:
-            self._fail('download fail')
+            self._fail(res.result)
             return
 
         info = res.result

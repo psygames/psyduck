@@ -33,7 +33,7 @@ def _find(_arg):
     result = db.download_search(_arg, index, 10)
     _find_result = result
     msg = mb.build_search(result, index)
-    msg_tail += '\n输入：查看 1 查看文件信息'
+    msg_tail += '\n输入：查看 1~10 查看文件信息'
     return msg
 
 
@@ -48,10 +48,6 @@ def _info(_arg):
     if result is None:
         return '未找到文件信息！'
     return mb.build_info(result, index)
-
-
-def _download(_arg):
-    pass
 
 
 def _help(_arg):
@@ -69,7 +65,7 @@ def _help(_arg):
 
 
 def _mine(_arg):
-    pass
+    return '功能开发中...'
 
 
 def _more(_arg):

@@ -46,6 +46,7 @@ class Helper:
                 return self._fail_result('option 已被锁定')
             file_helper.lock_option(_option_name)
             self.is_driver_busy = True
+            self.is_disposed = False
             self.__get_tmp_driver()
             self.option_name = _option_name
             self.tmp_option_path = os.path.join(self.options_path, _option_name)
@@ -390,11 +391,11 @@ class Helper:
             time.sleep(1)
             if self.driver.current_url != url:
                 return self._fail_result('redirect')
-
             step = 'check block'
             callback(step)
             time.sleep(0.1)
-            block = self.find('//div[@id="st_toastBox"]').get_attribute('style').find('opacity:') != -1
+            block = self.find('//div[@id="st_toastBox"]').get_attribute('style').find('block') != -1
+            block = block or self.find('//div[@id="st_toastBox"]').get_attribute('style').find('z-index') != -1
             if block:
                 info = self.find('//span[@id="st_toastContent"]').text
                 return self._fail_result(info)
