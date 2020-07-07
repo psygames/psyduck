@@ -322,7 +322,10 @@ class Helper:
             if self.driver.current_url != url:
                 self.get(url)
             title = self.find('//div[@class="resource_title"]').text
-            desc = self.find('//div[@class="resource_description"]/p').text
+            desc = self.find('//div[@class="resource_description"]/p')
+            if desc is None:
+                desc = self.find('//div[@class="resource_description surp"]/p')
+            desc = desc.text
             stars = 0
             for i in range(1, 6):
                 if self.find(f'//span[@class="starts"]/i[{i}]').get_attribute('class') == 'fa fa-star':
