@@ -8,8 +8,10 @@ namespace Psyduck
     public class Psyduck : MonoBehaviour
     {
         public string host = "http://39.105.150.229:8748/psyduck";
+        public string qqHost = "http://39.105.150.229:8738";
 
         public static string _host => _instance.host;
+        public static string _qqHost => _instance.qqHost;
 
         private static Psyduck _instance = null;
 

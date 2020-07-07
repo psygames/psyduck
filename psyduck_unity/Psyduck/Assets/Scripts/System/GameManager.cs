@@ -11,6 +11,6 @@ public class GameManager : MonoBehaviour
             return Resources.Load<ViewBase>("Prefabs/Views/" + _view);
         };
 
-        UIManager.Open<NavView>();
+        UIManager.Open<SignInView>();
     }
 }
