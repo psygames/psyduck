@@ -11,7 +11,7 @@ class DownloadProcedure:
     over = False
     csdn = ''
     url = ''
-    helper: core.helper.Helper = core.helper.Helper()
+    helper: core.helper.Helper
     current_func = None
 
     def __init__(self, act):
@@ -19,6 +19,8 @@ class DownloadProcedure:
         self.url = act['message']['url']
         self.csdn = act['message']['csdn']
         self.current_func = self.check_downloaded
+        self.helper = core.helper.Helper()
+        self.over = False
 
     def check_downloaded(self):
         _url = self.url
