@@ -38,7 +38,7 @@ async def handle_msg_private(event: Event):
     if qq_num in config.admin_list:
         await handle_msg_group(event)
     else:
-        await bot.send(event, f"您没有权限使用大黄鸭，请加群：{config.group_num}")
+        await bot.send(event, f"您没有使用权限，请加群：{config.group_num}")
 
 
 @bot.on_message('group')
