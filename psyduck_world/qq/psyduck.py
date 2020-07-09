@@ -65,7 +65,7 @@ async def handle_msg_group(event: Event):
 
     _id = find_csdn_download_id(message)
     if _id is not None:
-        log.info('download', _id)
+        log.info('download', f'group: {qq_group}, qq: {qq_num}, id: {_id}')
         if db.download_get(_id) is not None:
             msg = command.handle('-info', _id)
             await bot.send(event, msg)
@@ -81,7 +81,7 @@ async def handle_msg_group(event: Event):
     msg = command.handle(cmd, arg)
     if msg == '':
         return
-    log.info('command', message)
+    log.info('command', f'group: {qq_group}, qq: {qq_num}, {message}')
     await bot.send(event, msg)
 
 
