@@ -2,7 +2,7 @@ from collections import Awaitable
 
 from aiocqhttp import CQHttp, Event
 from qq import config
-from qq import short_url
+from core import log
 from qq import command
 from core import db
 from aiocqhttp import utils
@@ -63,9 +63,15 @@ async def handle_msg_group(event: Event):
     if 'group_id' in event:
         qq_group = event['group_id']
 
-    url = find_csdn_download_url(message)
-    if url is not None:
-        if qq_num in config.super_user or qq_group in config.super_group:
+    _id = find_csdn_download_id(message)
+    if _id is not None:
+        log.info('download', _id)
+        if db.download_get(_id) is not None:
+            msg = command.handle('-info', _id)
+            await bot.send(event, msg)
+            return
+        elif qq_num in config.super_user and qq_group in config.super_group:
+            url = find_csdn_download_id(message)
             await utils.run_async_funcs([async_download], event, url)
             return
         else:
@@ -75,24 +81,30 @@ async def handle_msg_group(event: Event):
     msg = command.handle(cmd, arg)
     if msg == '':
         return
+    log.info('command', message)
     await bot.send(event, msg)
 
 
-def find_csdn_download_url(text):
-    index = text.find('download.csdn.net/download/')
-    if index != -1:
-        d_end = index + len('download.csdn.net/download/')
-        sp = text[d_end:].find('/')
-        if sp != -1 and len(text[d_end + sp + 1:]) > 0:
-            id_len = 0
-            for i in range(d_end + sp + 1, len(text)):
-                if '9' >= text[i] >= '0':
-                    id_len += 1
-                else:
-                    break
-            if id_len > 0:
-                return 'https://' + text[index:d_end + sp + 1 + id_len]
+def find_csdn_download_id(text):
+    def __get_id(_index):
+        for i in range(_index, len(text)):
+            if not '9' >= text[i] >= '0':
+                return text[_index:i]
+        return None
+
+    prefixes = ['download.csdn.net/download/', 'download.csdn.net/detail/']
+    for p in prefixes:
+        index = text.find(p)
+        if index != -1:
+            return __get_id(index + len(p))
     return None
+
+
+def find_csdn_download_url(text):
+    _id = find_csdn_download_id(text)
+    if _id is None:
+        return None
+    return f'https://download.csdn.net/download/{_id}'
 
 
 async def async_download(event, url):
