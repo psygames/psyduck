@@ -70,7 +70,7 @@ async def handle_msg_group(event: Event):
             msg = command.handle('-info', _id)
             await bot.send(event, msg)
             return
-        elif qq_num in config.super_user and qq_group in config.super_group:
+        elif qq_num in config.super_user or qq_group in config.super_group:
             url = find_csdn_download_id(message)
             await utils.run_async_funcs([async_download], event, url)
             return
@@ -87,6 +87,10 @@ async def handle_msg_group(event: Event):
 
 def find_csdn_download_id(text):
     def __get_id(_index):
+        _index = text.find('/',_index)
+        if _index == -1:
+            return None
+        _index += 1
         for i in range(_index, len(text)):
             if not '9' >= text[i] >= '0':
                 return text[_index:i]
@@ -151,5 +155,10 @@ async def handle_group_request(event: Event):
 
 
 def main():
-    db.init()
-    bot.run(host=config.host, port=config.port)
+    try:
+        db.init()
+        bot.run(host=config.host, port=config.port)
+    except KeyboardInterrupt:
+        pass
+
+
