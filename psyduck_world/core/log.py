@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 
 
 def info(name, _str):
