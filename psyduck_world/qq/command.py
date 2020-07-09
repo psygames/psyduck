@@ -3,11 +3,11 @@ from core import db
 import qq
 
 commands = {
-    'find': {'name': '搜索资源', 'cmd': ['搜索', '-find'], 'more': True, 'display': True},
-    'info': {'name': '查看信息', 'cmd': ['查看', '-info'], 'more': True, 'display': True},
-    'mine': {'name': '我的信息', 'cmd': ['我的', '-mine'], 'more': False, 'display': True},
-    'help': {'name': '查看帮助', 'cmd': ['帮助', '-help'], 'more': True, 'display': True},
-    'more': {'name': '更多信息', 'cmd': ['更多', '-more'], 'more': False, 'display': False},
+    'find': {'name': '搜索资源', 'cmd': ['-find', '搜索', ], 'more': True, 'display': True},
+    'info': {'name': '查看信息', 'cmd': ['-info', '查看', ], 'more': True, 'display': True},
+    'mine': {'name': '我的信息', 'cmd': ['-mine', '我的', ], 'more': False, 'display': True},
+    'help': {'name': '查看帮助', 'cmd': ['-help', '帮助', '-?', '-？'], 'more': True, 'display': True},
+    'more': {'name': '更多信息', 'cmd': ['-more', '更多', ], 'more': False, 'display': False},
 }
 
 cmd = ''
@@ -33,7 +33,7 @@ def _find(_arg):
     result = db.download_search(_arg, index, 10)
     _find_result = result
     msg = mb.build_search(result, index)
-    msg_tail += '\n输入：查看 1~10 查看文件信息'
+    msg_tail += '\n-info 1~10 查看文件信息'
     return msg
 
 
@@ -58,7 +58,7 @@ def _help(_arg):
             continue
         name = commands[c]['name']
         _cmd = commands[c]['cmd'][0]
-        msg += f'● {name}：{_cmd}\n'
+        msg += f'● {_cmd}  {name}\n'
     msg = msg[:-1]
     msg_tail = '\n*输入CSDN下载地址下载'
     return msg
@@ -90,7 +90,7 @@ def _handle(_cmd, _arg):
         return msg
     msg += mb.build_separator(msg)
     if commands[_cmd]['more']:
-        msg += '\n输入：更多 获取更多信息'
+        msg += '\n-more 获取更多信息'
     if msg_tail != '':
         msg += f'{msg_tail}'
     msg += mb.build_tails()

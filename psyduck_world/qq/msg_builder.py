@@ -95,7 +95,7 @@ def build_info(result, index):
         return _build_info_detail(result)
     info = result['info']
     title = info['title']
-    title = _cut_text(title, 24)
+    title = _cut_text(title, 40)
     msg = title
     msg += '\n评分：{}{}'.format('★' * info['star'], '☆' * (5 - info['star']))
     msg += '\n所需：{} 积分/C币'.format(info['point'])
@@ -112,7 +112,7 @@ def build_search(result, index):
     for d in result:
         info = d['info']
         title = info['title']
-        title = _cut_text(title, 24)
+        title = _cut_text(title, 40)
         msg += f'\n{rank}. {title}'
         rank += 1
     return msg
