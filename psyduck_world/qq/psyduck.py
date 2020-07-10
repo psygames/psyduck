@@ -106,10 +106,18 @@ def find_csdn_download_id(text):
 
 
 def find_csdn_download_url(text):
-    _id = find_csdn_download_id(text)
-    if _id is None:
+    def __get_id(_index):
+        for i in range(_index, len(text)):
+            if not '9' >= text[i] >= '0':
+                return text[_index:i]
         return None
-    return f'https://download.csdn.net/download/{_id}'
+
+    prefixes = ['download.csdn.net/download/', 'download.csdn.net/detail/']
+    for p in prefixes:
+        index = text.find(p)
+        if index != -1:
+            return f'https://download.csdn.net/download/{__get_id(index + len(p))}'
+    return None
 
 
 async def async_download(event, url):
