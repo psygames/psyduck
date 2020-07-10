@@ -107,7 +107,11 @@ def find_csdn_download_id(text):
 
 def find_csdn_download_url(text):
     def __get_id(_index):
-        for i in range(_index, len(text)):
+        _index2 = text.find('/', _index)
+        if _index2 == -1:
+            return None
+        _index2 += 1
+        for i in range(_index2, len(text)):
             if not '9' >= text[i] >= '0':
                 return text[_index:i]
         return None
