@@ -39,7 +39,7 @@ async def handle_msg_private(event: Event):
         await handle_msg_group(event)
     else:
         log.info('屏蔽私聊', event.message, qq_num)
-        # await bot.send(event, f"您没有使用权限，请加群：{config.group_num}")
+        await bot.send(event, f"您没有使用权限，请加群：{config.group_num}")
 
 
 @bot.on_message('group')
