@@ -1,6 +1,6 @@
 from datetime import datetime
 
 
-def info(name, _str):
+def info(name, msg, desc):
     _time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f'{_time} > [{name}] {_str}')
+    print(f'{_time} -> [{name}] {msg} ({desc})')

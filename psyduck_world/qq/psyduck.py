@@ -38,7 +38,8 @@ async def handle_msg_private(event: Event):
     if qq_num in config.admin_list:
         await handle_msg_group(event)
     else:
-        await bot.send(event, f"您没有使用权限，请加群：{config.group_num}")
+        log.info('屏蔽私聊', event.message, qq_num)
+        # await bot.send(event, f"您没有使用权限，请加群：{config.group_num}")
 
 
 @bot.on_message('group')
@@ -65,7 +66,7 @@ async def handle_msg_group(event: Event):
 
     _id = find_csdn_download_id(message)
     if _id is not None:
-        log.info('download', f'group: {qq_group}, qq: {qq_num}, id: {_id}')
+        log.info('download', _id, f'group: {qq_group}, qq: {qq_num}')
         if db.download_get(_id) is not None:
             msg = command.handle('-info', _id)
             await bot.send(event, msg)
@@ -81,13 +82,13 @@ async def handle_msg_group(event: Event):
     msg = command.handle(cmd, arg)
     if msg == '':
         return
-    log.info('command', f'group: {qq_group}, qq: {qq_num}, {message}')
+    log.info('command', message, f'group: {qq_group}, qq: {qq_num}')
     await bot.send(event, msg)
 
 
 def find_csdn_download_id(text):
     def __get_id(_index):
-        _index = text.find('/',_index)
+        _index = text.find('/', _index)
         if _index == -1:
             return None
         _index += 1
@@ -160,5 +161,3 @@ def main():
         bot.run(host=config.host, port=config.port)
     except KeyboardInterrupt:
         pass
-
-
