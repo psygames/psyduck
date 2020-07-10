@@ -72,7 +72,7 @@ async def handle_msg_group(event: Event):
             await bot.send(event, msg)
             return
         elif qq_num in config.super_user or qq_group in config.super_group:
-            url = find_csdn_download_id(message)
+            url = find_csdn_download_url(message)
             await utils.run_async_funcs([async_download], event, url)
             return
         else:
