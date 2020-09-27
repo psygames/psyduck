@@ -110,6 +110,8 @@ def download_set_share_url(_id, share_url):
     data = download.find_one({'id': _id})
     if data is not None:
         download.update_one({'id': _id}, {'$set': {'share_url': share_url}})
+        return True
+    return False
 
 
 def download_get(_id):

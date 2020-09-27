@@ -1,5 +1,7 @@
 from django.http import HttpResponse
 from .api import action_api
+import json
+from django.shortcuts import render
 
 
 def _get(request, key, default=''):
@@ -13,7 +15,7 @@ def _get(request, key, default=''):
 
 
 def index(request):
-    return HttpResponse('psyduck~')
+    return render(request, 'index.html')
 
 
 # login
@@ -112,3 +114,35 @@ def recover_action(request):
     uid = _get(request, 'uid')
     json_result = action_api.recover_action(uid)
     return HttpResponse(json_result)
+
+
+# SEARCH
+
+
+def _response(result_json=''):
+    return HttpResponse(
+        json.dumps({'result_json': result_json}),
+        content_type='application/json')
+
+
+def search(request):
+    if request.method == 'GET':
+        return HttpResponse()
+
+    uuid = _get(request, 'murmur', '')
+    keyword = _get(request, 'keyword', '')
+    page = int(_get(request, 'page', '0'))
+    cip = _get(request, 'cip', '')
+    cname = _get(request, 'cname', '')
+
+    if uuid == '':
+        return _response('none')
+    log(uuid, f'[{cname}]({cip}) [{keyword}]({page})')
+    result_json = action_api.download_find(keyword, page * 10)
+    return _response(result_json)
+
+
+def log(uuid, msg):
+    import datetime
+    now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 现在
+    print('[{}]：{} at ({})'.format(uuid[0:6], msg, now_time))
