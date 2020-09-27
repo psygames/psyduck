@@ -1,22 +1,7 @@
-var murmur = '';
 var current_page = 0;
 var result_json = '';
 var bottom_loading = false;
 var search_done = false;
-
-function catch_murmur()
-{
-    setTimeout(function ()
-    {
-        Fingerprint2.get(function (components)
-        {
-            var values = components.map(function (component) { return component.value })
-            murmur = Fingerprint2.x64hash128(values.join(''), 31)
-        })
-    }, 500)
-}
-
-setTimeout("catch_murmur()", 50);
 
 function onKeyDown(event)
 {
@@ -44,7 +29,7 @@ function search_continue()
     $.ajax({
         type: 'POST',
         url: 'search',
-        data: {'murmur': murmur, 'keyword': keyword, 'page': current_page, 'cip': cip, 'cname': cname},
+        data: {'keyword': keyword, 'page': current_page, 'cip': cip, 'cname': cname},
         dataType: 'json',
         success: function(res) {
             bottom_load_end();

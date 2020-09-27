@@ -108,7 +108,7 @@ def download_find(request):
     keyword = _get(request, 'keyword')
     _index = int(_get(request, 'index', '0'))
     json_result = action_api.download_find(keyword, _index)
-    log("API-FIND", keyword)
+    log(f"API-FIND({_index})", keyword)
     return HttpResponse(json_result)
 
 
@@ -131,20 +131,16 @@ def search(request):
     if request.method == 'GET':
         return HttpResponse()
 
-    uuid = _get(request, 'murmur', '')
     keyword = _get(request, 'keyword', '')
     page = int(_get(request, 'page', '0'))
     cip = _get(request, 'cip', '')
     cname = _get(request, 'cname', '')
-
-    if uuid == '':
-        return _response('none')
-    log(uuid, f'[{cname}]({cip}) [{keyword}]({page})')
+    log(f'{cname} - {cip}', f'[{keyword}]({page})')
     result_json = action_api.download_find(keyword, page * 10)
     return _response(result_json)
 
 
-def log(uuid, msg):
+def log(target, msg):
     import datetime
     now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 现在
-    print('[{}]：{} at ({})'.format(uuid[0:6], msg, now_time))
+    print('[{}]：{} at {}'.format(target, msg, now_time))
