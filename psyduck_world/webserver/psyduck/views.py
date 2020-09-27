@@ -92,6 +92,7 @@ def download_get_state(request):
 def download_get(request):
     _id = _get(request, 'id')
     json_result = action_api.download_get(_id)
+    log("API-GET", _id)
     return HttpResponse(json_result)
 
 
@@ -107,6 +108,7 @@ def download_find(request):
     keyword = _get(request, 'keyword')
     _index = int(_get(request, 'index', '0'))
     json_result = action_api.download_find(keyword, _index)
+    log("API-FIND", keyword)
     return HttpResponse(json_result)
 
 
