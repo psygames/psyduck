@@ -74,6 +74,7 @@ function append_result(result_json)
     for(var index in _result)
     {
         var item = _result[index]["info"];
+        var share_url = _result[index]["share_url"]
         var url = item['url'];
         var _star = item["star"];
         var _desc = item["description"];
@@ -81,7 +82,7 @@ function append_result(result_json)
         var _date = item["upload_time"];
 
         var dl = '<dl class="form-inline form-group">';
-        dl += '<dt><a href="'+ url +'" target="_blank" style="font-size:18px"><b>';
+        dl += '<dt><a href="'+ share_url +'" target="_blank" style="font-size:18px"><b>';
         dl += _rank + '. '+ _title +'</b></a></dt>';
         dl += '<dd><p class="text-muted">* '+_desc+'</p><p class="text-muted">时间：'+_date+'　　评分：<span style="font-size:20px;height:16px;">'+_star+'</span></p></dd>';
         dl += '</dl>';
