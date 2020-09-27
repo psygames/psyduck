@@ -286,13 +286,7 @@ def download_get(_id):
 
 
 def download_find(keyword, index):
-    if keyword == '':
-        return _error_xxx_empty('keyword')
-
-    keywords = jieba.analyse.extract_tags(keyword, 3)
-    if len(keywords) == 0:
-        keywords.append(keyword)
-    result = db.download_search(keywords, index)
+    result = db.download_search(keyword, index)
     cut_result = []
     for item in result:
         cut_result.append(_download_cut(item))
